@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Parties</title>
+</head>
+<body>
+    <h1>Ajouter une Partie</h1>
+    
+    <form id="gameForm">
+        <label for="gameId">ID Partie :</label>
+        <input type="text" id="gameId" name="gameId" required>
+        <br><br>
+
+        <label for="numPlayers">Nombre de Joueurs :</label>
+        <input type="number" id="numPlayers" name="numPlayers" min="1" required>
+        <br><br>
+
+        <div id="playersSection">
+            <!-- Section dynamique pour ajouter les IDs et scores des joueurs -->
+        </div>
+
+        <button type="button" onclick="addPlayersFields()">Configurer les Joueurs</button>
+        <br><br>
+
+        <button type="button" onclick="addGame()">Rentrer Partie</button>
+    </form>
+
+    <h2>Tableau des Parties</h2>
+    <table border="1" id="gameTable">
+        <thead>
+            <tr>
+                <th>ID Partie et IDs Joueurs</th>
+                <th>Nombre de Joueurs et Scores</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Les parties ajoutées apparaîtront ici -->
+        </tbody>
+    </table>
+        <button type="button" onclick="sendTableToServer()">Envoyer le tableau</button>
+
+
+    <script>
+        function addPlayersFields() {
+            const numPlayers = document.getElementById('numPlayers').value;
+            const playersSection = document.getElementById('playersSection');
+            playersSection.innerHTML = '';
+
+            for (let i = 1; i <= numPlayers; i++) {
+                playersSection.innerHTML += `
+                    <label for="playerId${i}">ID Joueur ${i} :</label>
+                    <input type="text" id="playerId${i}" name="playerId${i}" required>
+                    <label for="playerScore${i}">Score Joueur ${i} :</label>
+                    <input type="number" id="playerScore${i}" name="playerScore${i}" required>
+                    <br><br>
+                `;
+            }
+        }
+
+        function addGame() {
+            const gameId = document.getElementById('gameId').value;
+            const numPlayers = document.getElementById('numPlayers').value;
+            const playersSection = document.getElementById('playersSection');
+
+            const idsRow = [gameId];
+            const dataRow = [numPlayers];
+
+            for (let i = 1; i <= numPlayers; i++) {
+                const playerId = document.getElementById(`playerId${i}`).value;
+                const playerScore = document.getElementById(`playerScore${i}`).value;
+
+                idsRow.push(playerId);
+                dataRow.push(playerScore);
+            }
+
+            const table = document.getElementById('gameTable').getElementsByTagName('tbody')[0];
+
+            const newRow1 = table.insertRow();
+            const cell1 = newRow1.insertCell(0);
+            const cell2 = newRow1.insertCell(1);
+            cell1.innerText = idsRow.join(", ");
+            cell2.innerText = dataRow.join(", ");
+        }
+
+    function sendTableToServer() {
+        const table = document.getElementById("gameTable").getElementsByTagName("tbody")[0];
+        const rows = table.getElementsByTagName("tr");
+        const tableData = [];
+
+        for (const row of rows) {
+            const cells = row.getElementsByTagName("td");
+            const rowData = [];
+            for (const cell of cells) {
+                rowData.push(cell.innerText);
+            }
+            tableData.push(rowData);
+        }
+
+        fetch("/save_table", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ table: tableData }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error("Erreur lors de l'envoi du tableau :", error);
+        });
+    }
+
+    </script>
+</body>
+</html>
+

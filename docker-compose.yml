@@ -3,10 +3,10 @@ version: "3.9"
 services:
   front_end:
     build:
-      context: ./front_end
+      context: ./Front_End
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
     volumes:
-      - ./front_end:/app
+      - ./Front_End:/FE_app
     restart: always
