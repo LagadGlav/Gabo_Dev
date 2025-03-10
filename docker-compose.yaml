@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  front_end:
+    build:
+      context: ./front_end
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./front_end:/app
+    restart: always
