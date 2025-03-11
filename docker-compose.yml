@@ -6,7 +6,5 @@ services:
       context: ./Front_End
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
-    volumes:
-      - ./Front_End:/FE_app
-    restart: always
+      - "80:80"
+

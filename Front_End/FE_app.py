@@ -1,23 +1,36 @@
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='html')
 
 saved_tables = []
+
+class partie:
+    def __init__(self, id_partie, table):
+        self.id_partie = id_partie
+        self.table = table
+
+class queue:
+    def __init__(self):
+        self.queue = [[]]
+
+    def add_queue(self, partie):
+        self.queue.append(partie)
 
 @app.route('/')
 def index():
     return render_template("Chtml.html")
 
+
 @app.route('/save_table', methods=['POST'])
-def save_table():
+def receive_table():
     data = request.json
     table = data.get("table")
-    if table:
-        saved_tables.append(table) 
-        return jsonify({"message": "Tableau up"})
-    else:
-        return jsonify({"tabE"}), 400
+    p_receive = new partie(table[0][0], table)
+    queue.add_queue(p_receive)
+    
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    Q = new queue
+    app.run(host='0.0.0.0', port=80, debug=True)
+
 
