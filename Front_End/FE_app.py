@@ -26,7 +26,7 @@ def receive_table():
     data = request.json
     table = data.get("table")
     p_receive = new partie(table[0][0], table)
-    queue.add_queue(p_receive)
+    Q.add_queue(p_receive)
     
 
 if __name__ == "__main__":
