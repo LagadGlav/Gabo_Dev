@@ -3,8 +3,15 @@ version: "3.9"
 services:
   front_end:
     build:
-      context: ./Front_End
+      context: ./APP
       dockerfile: Dockerfile
     ports:
       - "80:80"
+    networks:
+      - app_network
+
+networks:
+  app_network:
+    driver: bridge
+
 

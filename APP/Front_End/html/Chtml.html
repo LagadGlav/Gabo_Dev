@@ -62,7 +62,6 @@
         function addGame() {
             const gameId = document.getElementById('gameId').value;
             const numPlayers = document.getElementById('numPlayers').value;
-            const playersSection = document.getElementById('playersSection');
 
             const idsRow = [gameId];
             const dataRow = [numPlayers];
@@ -77,42 +76,51 @@
 
             const table = document.getElementById('gameTable').getElementsByTagName('tbody')[0];
 
-            const newRow1 = table.insertRow();
-            const cell1 = newRow1.insertCell(0);
-            const cell2 = newRow1.insertCell(1);
-            cell1.innerText = idsRow.join(", ");
-            cell2.innerText = dataRow.join(", ");
-        }
-
-    function sendTableToServer() {
-        const table = document.getElementById("gameTable").getElementsByTagName("tbody")[0];
-        const rows = table.getElementsByTagName("tr");
-        const tableData = [];
-
-        for (const row of rows) {
-            const cells = row.getElementsByTagName("td");
-            const rowData = [];
-            for (const cell of cells) {
-                rowData.push(cell.innerText);
+            if (table.rows.length > 0) {
+                // Si une ligne existe, on l'écrase
+                const existingRow = table.rows[0];
+                existingRow.cells[0].innerText = idsRow.join(", ");
+                existingRow.cells[1].innerText = dataRow.join(", ");
+            } else {
+                // Si aucune ligne n'existe, on en ajoute une
+                const newRow = table.insertRow();
+                const cell1 = newRow.insertCell(0);
+                const cell2 = newRow.insertCell(1);
+                cell1.innerText = idsRow.join(", ");
+                cell2.innerText = dataRow.join(", ");
             }
-            tableData.push(rowData);
         }
 
-        fetch("/save_table", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ table: tableData }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-        })
-        .catch(error => {
-            console.error("Erreur lors de l'envoi du tableau :", error);
-        });
-    }
+        function sendTableToServer() {
+            const table = document.getElementById("gameTable").getElementsByTagName("tbody")[0];
+            const rows = table.getElementsByTagName("tr");
+            const tableData = [];
+
+            for (const row of rows) {
+                const cells = row.getElementsByTagName("td");
+                const rowData = [];
+                for (const cell of cells) {
+                    rowData.push(cell.innerText);
+                }
+                tableData.push(rowData);
+            }
+
+            fetch("/save_table", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ table: tableData }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(data.message);
+            })
+            .catch(error => {
+                console.error("Erreur lors de l'envoi du tableau :", error);
+            });
+            console.log("sendTableToServer Ended");
+        }
 
     </script>
 </body>
