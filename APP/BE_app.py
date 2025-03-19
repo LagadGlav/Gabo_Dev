@@ -1,5 +1,9 @@
 from flask import Flask, render_template, request, jsonify
 
+import time
+import mysql.connector
+from mysql.connector import connect
+
 app = Flask(__name__, template_folder='Front_End/html', static_folder='Front_End')
 
 saved_tables = []
@@ -18,8 +22,38 @@ class queue:
         app.logger.debug(f"Queue: {[(g.id_game, g.table) if isinstance(g, game) else g for g in self.queue]}")
 
 
+def connect_to_database():
+    """Function to establish a connection to the MySQL database.
+    Retries the connection up to 10 times with a 5-second delay between attempts."""
+
+    connection = None
+    max_retries = 10
+    for attempt in range(max_retries):
+        try:
+            connection = mysql.connector.connect(
+                host="data_base",  # Nom du service défini dans docker-compose
+                user="root",
+                password="Gabo",  # Mot de passe défini dans MYSQL_ROOT_PASSWORD
+                database="Gabo_base"
+            )
+            if connection.is_connected():
+                return connection
+        except mysql.connector.Error as e:  # Remplacez `Error` par le module correct
+            app.logger.info(f"Connection_failed{attempt}")
+            time.sleep(5)  # Attente de 5 secondes (comme dans le docstring)
+
+    raise Exception("Impossible to connect to the database after several attempts")
+
+
 @app.route('/')
 def index():
+    time.sleep(1)
+
+    app.logger.info("Connecting...")
+    connect_to_database()
+
+    app.logger.info("Réussie")
+
     return render_template("Chtml.html")
 
 

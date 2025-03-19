@@ -5,22 +5,30 @@ services:
     build:
       context: ./APP
       dockerfile: Dockerfile
+    environment:
+      DB_HOST: data_base
+      DB_DATABASE: Gabo_base
+      DB_USER: root
+      DB_PASSWORD: Gabo
     ports:
       - "80:80"
     networks:
       - app_network
+    depends_on:
+      - data_base
 
   data_base:
     build:
       context: ./Data_Base
     container_name: Data_Base_Gabo
     environment:
-      MYSQL_PASSWORD: Gabo
-      MYSQL_DATABASE: Base_Gabo
+      MYSQL_ROOT_PASSWORD: Gabo
+      MYSQL_DATABASE: Gabo_base
     ports:
       - "3306:3306"
     volumes:
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Data_base/init.sql:/docker-entrypoint-initdb.d/init.sql
+
     networks:
       - app_network
 
