@@ -10,6 +10,23 @@ services:
     networks:
       - app_network
 
+  data_base:
+    build:
+      context: ./Data_Base
+    container_name: Data_Base_Gabo
+    environment:
+      MYSQL_PASSWORD: Gabo
+      MYSQL_DATABASE: Base_Gabo
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - app_network
+
+volumes:
+  db_data:
+
 networks:
   app_network:
     driver: bridge
