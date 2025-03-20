@@ -11,17 +11,16 @@ CREATE TABLE Joueurs (
 
 CREATE TABLE Partie (
                         partie_id INT PRIMARY KEY,
-
-                        rang int,
                         nombre_joueur INT,
 
                         joueur_id INT,
-                        joueur_nom VARCHAR(50),
                         joueur_score INT,
+                        rang int,
 
                         date_partie DATETIME DEFAULT CURRENT_TIMESTAMP,
 
                         FOREIGN KEY (joueur_id) REFERENCES Joueurs(joueur_id) ON DELETE CASCADE
+                            id_game, nb_joueurs, id_joueur, score, rang
 );
 
 CREATE TRIGGER after_insert_partie
