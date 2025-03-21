@@ -5,21 +5,9 @@ lock = Lock()
 
 import time
 import mysql.connector
+import mysql.connector.pooling
 
 app = Flask(__name__, template_folder='Front_End/html', static_folder='Front_End')
-
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(
-    pool_name="pool",
-    pool_size=5,
-    host="data_base",
-    user="root",
-    password="Gabo",
-    database="Gabo_base"
-)
-
-def get_connection():
-    return connection_pool.get_connection()
-
 
 class game:
     def __init__(self, id_game,nb_joueurs, id_joueur, score, rang):
@@ -112,24 +100,11 @@ def index():
     return render_template("Chtml.html")
 
 
-@app.route('/save_table', methods=['POST'])
-def receive_table():
+def format_table(table):
 
-
-    data = request.json
-    if not data or "table" not in data:
-        return jsonify({"error": "Invalid input: 'table' key is missing"}), 400
-
-    table = data.get("table")
-    if not table or not isinstance(table, list):
-        return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
-
-    app.logger.info(data)
     table = table[0]
 
-
     table = [list(map(int, item.replace(',', '').split())) for item in table]
-
     id = table[0][0]
     nb_joueurs = table[1][0]
 
@@ -146,9 +121,6 @@ def receive_table():
         table[1][j + 1] = cle
         table[0][j + 1] = cle_valeur
 
-    table_sorted = table
-    app.logger.info(table_sorted)
-
     for i in range(1, len(table[0])):
         id_joueur = table[0][i]
         score = table[1][i]
@@ -157,13 +129,35 @@ def receive_table():
         with lock:
             Q.add_queue(p_received)
 
+    app.logger.info(Q.display())
+
+@app.route('/save_table', methods=['POST'])
+def receive_table():
+    data = request.json
+    if not data or "table" not in data:
+        return jsonify({"error": "Invalid input: 'table' key is missing"}), 400
+
+    table = data.get("table")
+    if not table or not isinstance(table, list):
+        return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
+
+    format_table(table)
     return jsonify({"message": "Table received"}), 200
-
-
-    
 
 if __name__ == "__main__":
     Q = queue()
     app.run(host='0.0.0.0', port=80, debug=True)
 
+
+connection_pool = mysql.connector.pooling.MySQLConnectionPool(
+    pool_name="pool",
+    pool_size=5,
+    host="data_base",
+    user="root",
+    password="Gabo",
+    database="Gabo_base"
+)
+
+def get_connection():
+    return connection_pool.get_connection()
 
