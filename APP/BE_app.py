@@ -1,3 +1,5 @@
+from webbrowser import Error
+
 from flask import Flask, render_template, request, jsonify
 from threading import Lock
 
@@ -8,6 +10,17 @@ import mysql.connector
 import mysql.connector.pooling
 
 app = Flask(__name__, template_folder='Front_End/html', static_folder='Front_End')
+
+
+def get_connection():
+    connection = mysql.connector.connect(
+        host="data_base",
+        user="root",
+        password="Gabo",
+        database="Gabo_base"
+    )
+    return connection
+
 
 class game:
     def __init__(self, id_game,nb_joueurs, id_joueur, score, rang):
@@ -26,18 +39,26 @@ class queue:
     def add_queue(self, partie):
         self.queue.append(partie)
 
-    def queue_management(self):
+    def empty_queue(self):
+        app.logger.info(self.display())
         with lock:
             if self.queue:
-                p = self.queue[0]
-                self.queue.pop(0)
-                return p
+                for i in range(len(self.queue)):
+                        p = self.queue[0]
+                        self.queue.pop(0)
+                        try:
+                            send_to_database(p)
+                        except Error as e:
+                            raise f"Erreur MySQL : {str(e)}"
+
             else:
                 return None
+        app.logger.info(self.display())
+        return True
+
 
     def display(self):
         return [str(obj) for obj in self.queue]
-
 
 
 def send_to_database(p):
@@ -45,24 +66,50 @@ def send_to_database(p):
     try:
         connection = get_connection()
         cursor = connection.cursor()
+        # Check if partie_id already exists
+        check_query = "SELECT COUNT(*) FROM Partie WHERE partie_id = %s"
+        cursor.execute(check_query, (p.id_game,))
+        app.logger.info()
 
         query = """
-            INSERT INTO Partie (id_partie, nombre_joueurs, joueur_id, joueur_score, rang)
+            INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang)
             VALUES (%s, %s, %s, %s, %s)
         """
-        data = (p.id_game, p.nbjoueur, p.id_joueurs, p.score, p.rang)
+        data = (p.id_game, p.nb_joueurs, p.id_joueur, p.score, p.rang)
         cursor.execute(query, data)
         connection.commit()
     except Error as e:
         connection.rollback()
         app.logger.error(f"Erreur MySQL : {str(e)}")
-        return jsonify({"error": "Database error"}), 500
+        raise f"Erreur MySQL : {str(e)}"
     finally:
         if connection:
             connection.close()
 
     return True
 
+def send_to_database_j(id_joueur, nom):
+    connection = None
+    try:
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        query = """
+            INSERT INTO Joueurs (joueur_id, joueur_nom)
+            VALUES (%s, %s)
+        """
+        data = (id_joueur, nom)
+        cursor.execute(query, data)
+        connection.commit()
+    except Error as e:
+        connection.rollback()
+        app.logger.error(f"Erreur MySQL : {str(e)}")
+        raise f"Erreur MySQL : {str(e)}"
+    finally:
+        if connection:
+            connection.close()
+
+    return True
 
 
 def connect_to_database_interro():
@@ -91,48 +138,88 @@ def connect_to_database_interro():
 @app.route('/')
 def index():
     time.sleep(1)
-
-    app.logger.info("Connecting...")
-    connect_to_database_interro()
-
-    app.logger.info("Réussie")
-
     return render_template("Chtml.html")
 
+def sort_table(table):
+    # Tri par insertion
+    n = len(table[1])
+    try:
+        for i in range(1, n):
+            cle = table[1][i]
+            cle_valeur = table[0][i]  # Sauvegarde de la première ligne associée
+            j = i - 1
+            while j >= 0 and table[1][j] > cle:
+                table[1][j + 1] = table[1][j]  # Décale la deuxième ligne
+                table[0][j + 1] = table[0][j]  # Décale la première ligne associée
+                j -= 1
+            table[1][j + 1] = cle
+            table[0][j + 1] = cle_valeur
+        return table
+    except Error as e:
+        raise f"Error sorting table : {e}"
 
 def format_table(table):
-
     table = table[0]
 
     table = [list(map(int, item.replace(',', '').split())) for item in table]
+
     id = table[0][0]
     nb_joueurs = table[1][0]
 
-    n = len(table[1])
-    # Tri par insertion
-    for i in range(1, n):
-        cle = table[1][i]
-        cle_valeur = table[0][i]  # Sauvegarde de la première ligne associée
-        j = i - 1
-        while j >= 0 and table[1][j] > cle:
-            table[1][j + 1] = table[1][j]  # Décale la deuxième ligne
-            table[0][j + 1] = table[0][j]  # Décale la première ligne associée
-            j -= 1
-        table[1][j + 1] = cle
-        table[0][j + 1] = cle_valeur
+    table = sort_table(table)
 
     for i in range(1, len(table[0])):
         id_joueur = table[0][i]
         score = table[1][i]
         rang = i
-        p_received = game(table[0][0], table[1][0], id_joueur, score, rang)
+        p_received = game(id, nb_joueurs, id_joueur, score, rang)
         with lock:
-            Q.add_queue(p_received)
-
+            try:
+                Q.add_queue(p_received)
+            except Error as e:
+                raise f"Error add to queue : {e}"
     app.logger.info(Q.display())
+    em = Q.empty_queue()
+    table = get_all_players()
+    app.logger.info(table)
+    return em
+
+def get_all_players():
+    """Récupère toutes les lignes de la table 'joueurs' depuis MySQL."""
+    app.logger.info("Load joueurs done")
+    connection = None
+    try:
+        # Obtenir une connexion depuis le pool
+        connection = get_connection()
+        cursor = connection.cursor()
+
+        # Requête pour récupérer toutes les lignes
+        query = "SELECT * FROM Joueurs"
+        cursor.execute(query)
+        rows = cursor.fetchall()  # Récupère toutes les lignes
+
+        # Afficher les résultats
+        for row in rows:
+            app.logger.info(row)  # Vous pouvez traiter chaque ligne ici
+        return rows
+    except Error as e:
+        app.logger.info(f"Erreur lors de la récupération des données : {e}")
+        return []
+    finally:
+        if connection:
+            connection.close()  # Libère la connexion
 
 @app.route('/save_table', methods=['POST'])
 def receive_table():
+
+    app.logger.info("Connecting...")
+    connect_to_database_interro()
+
+    app.logger.info("Réussie")
+    #send_to_database_j(15, "Marco")
+    #send_to_database_j(14, "Lisa")
+    #send_to_database_j(198, "Meven")
+    get_all_players()
     data = request.json
     if not data or "table" not in data:
         return jsonify({"error": "Invalid input: 'table' key is missing"}), 400
@@ -145,19 +232,11 @@ def receive_table():
     return jsonify({"message": "Table received"}), 200
 
 if __name__ == "__main__":
+    time.sleep(5)
     Q = queue()
+    connexion = connect_to_database_interro()
     app.run(host='0.0.0.0', port=80, debug=True)
 
 
-connection_pool = mysql.connector.pooling.MySQLConnectionPool(
-    pool_name="pool",
-    pool_size=5,
-    host="data_base",
-    user="root",
-    password="Gabo",
-    database="Gabo_base"
-)
 
-def get_connection():
-    return connection_pool.get_connection()
 

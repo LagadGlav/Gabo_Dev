@@ -5,11 +5,6 @@ services:
     build:
       context: ./APP
       dockerfile: Dockerfile
-    environment:
-      DB_HOST: data_base
-      DB_DATABASE: Gabo_base
-      DB_USER: root
-      DB_PASSWORD: Gabo
     ports:
       - "80:80"
     networks:
@@ -22,8 +17,10 @@ services:
       context: ./Data_Base
     container_name: Data_Base_Gabo
     environment:
-      MYSQL_ROOT_PASSWORD: Gabo
-      MYSQL_DATABASE: Gabo_base
+      DB_HOST: data_base
+      DB_DATABASE: Gabo_base
+      DB_USER: root
+      DB_PASSWORD: Gabo
     ports:
       - "3306:3306"
     volumes:
