@@ -66,10 +66,6 @@ def send_to_database(p):
     try:
         connection = get_connection()
         cursor = connection.cursor()
-        # Check if partie_id already exists
-        check_query = "SELECT COUNT(*) FROM Partie WHERE partie_id = %s"
-        cursor.execute(check_query, (p.id_game,))
-        app.logger.info()
 
         query = """
             INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang)
@@ -101,6 +97,7 @@ def send_to_database_j(id_joueur, nom):
         data = (id_joueur, nom)
         cursor.execute(query, data)
         connection.commit()
+        app.logger.info(f"Joueur inséré : ID={id_joueur}, Nom={nom}")
     except Error as e:
         connection.rollback()
         app.logger.error(f"Erreur MySQL : {str(e)}")
@@ -211,15 +208,17 @@ def get_all_players():
 
 @app.route('/save_table', methods=['POST'])
 def receive_table():
-
+    data = request.json
     app.logger.info("Connecting...")
     connect_to_database_interro()
 
     app.logger.info("Réussie")
-    #send_to_database_j(15, "Marco")
-    #send_to_database_j(14, "Lisa")
-    #send_to_database_j(198, "Meven")
+
+    send_to_database_j(15, "Marco")
+    send_to_database_j(14, "Gervor")
+    send_to_database_j(198, "Andrée")
     get_all_players()
+
     data = request.json
     if not data or "table" not in data:
         return jsonify({"error": "Invalid input: 'table' key is missing"}), 400
