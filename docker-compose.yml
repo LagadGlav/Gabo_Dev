@@ -10,7 +10,8 @@ services:
     networks:
       - app_network
     depends_on:
-      - data_base
+      data_base:
+        condition: service_healthy
 
   data_base:
     build:
@@ -25,15 +26,17 @@ services:
       - "3306:3306"
     volumes:
       - ./Data_base/init.sql:/docker-entrypoint-initdb.d/init.sql
-
+    tmpfs:
+      - /var/lib/mysql
     networks:
       - app_network
-
-volumes:
-  db_data:
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
 networks:
   app_network:
     driver: bridge
-
-

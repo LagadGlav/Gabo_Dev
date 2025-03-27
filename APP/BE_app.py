@@ -195,6 +195,9 @@ def get_all_players():
         cursor.execute(query)
         rows = cursor.fetchall()  # Récupère toutes les lignes
 
+        if rows == None:
+            return []
+
         # Afficher les résultats
         for row in rows:
             app.logger.info(row)  # Vous pouvez traiter chaque ligne ici
@@ -208,15 +211,16 @@ def get_all_players():
 
 @app.route('/save_table', methods=['POST'])
 def receive_table():
+    if get_all_players() == []:
+        send_to_database_j(14, "Marco")
+        send_to_database_j(15, "Gerveur")
+        send_to_database_j(198, "Andrée")
+
     data = request.json
     app.logger.info("Connecting...")
-    connect_to_database_interro()
 
     app.logger.info("Réussie")
 
-    send_to_database_j(15, "Marco")
-    send_to_database_j(14, "Gervor")
-    send_to_database_j(198, "Andrée")
     get_all_players()
 
     data = request.json
@@ -234,6 +238,8 @@ if __name__ == "__main__":
     time.sleep(5)
     Q = queue()
     connexion = connect_to_database_interro()
+
+
     app.run(host='0.0.0.0', port=80, debug=True)
 
 
