@@ -3,11 +3,16 @@ from webbrowser import Error
 from flask import Flask, render_template, request, jsonify
 from threading import Lock
 
+import datetime
+import os, sys
+
 lock = Lock()
 
 import time
 import mysql.connector
 import mysql.connector.pooling
+
+import subprocess
 
 app = Flask(__name__, template_folder='Front_End/html', static_folder='Front_End')
 
@@ -56,9 +61,9 @@ class queue:
         app.logger.info(self.display())
         return True
 
-
     def display(self):
         return [str(obj) for obj in self.queue]
+
 
 
 def send_to_database(p):
@@ -183,7 +188,6 @@ def format_table(table):
 
 def get_all_players():
     """Récupère toutes les lignes de la table 'joueurs' depuis MySQL."""
-    app.logger.info("Load joueurs done")
     connection = None
     try:
         # Obtenir une connexion depuis le pool
@@ -209,12 +213,17 @@ def get_all_players():
         if connection:
             connection.close()  # Libère la connexion
 
+
+
 @app.route('/save_table', methods=['POST'])
 def receive_table():
+
     if get_all_players() == []:
         send_to_database_j(14, "Marco")
         send_to_database_j(15, "Gerveur")
         send_to_database_j(198, "Andrée")
+    else:
+        app.logger.info("No need to load players")
 
     data = request.json
     app.logger.info("Connecting...")
@@ -232,14 +241,37 @@ def receive_table():
         return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
 
     format_table(table)
-    return jsonify({"message": "Table received"}), 200
+    return jsonify({"message": "Table received and stored"}), 200
 
-if __name__ == "__main__":
-    time.sleep(5)
+is_ready = False
+# Route pour recevoir la notification is ready
+@app.route('/ready', methods=['GET'])
+def notify_ready():
+    global is_ready
+    is_ready = True
+
+    app.logger.info("Notification reçue : Backup terminé et base de données opérationnelle.")
+
+    app.logger.info("Startup...")
+
+    try:
+        start_up()
+    except:
+        app.logger.info("Start up failed")
+
+    get_all_players()
+    app.logger.info("Start up successed : App is ready")
+    return "App is ready", 200
+
+def start_up():
+    global Q
+    time.sleep(1)
     Q = queue()
     connexion = connect_to_database_interro()
+    app.logger.info("Connected")
+    return
 
-
+if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True)
 
 

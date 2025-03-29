@@ -2,6 +2,9 @@ DROP DATABASE IF EXISTS Gabo_base;
 CREATE DATABASE Gabo_base;
 USE Gabo_base;
 
+DROP TABLE IF EXISTS Joueurs;
+DROP TABLE if exists Partie;
+
 
 CREATE TABLE Joueurs (
                          joueur_id INT PRIMARY KEY,

@@ -9,9 +9,6 @@ services:
       - "80:80"
     networks:
       - app_network
-    depends_on:
-      data_base:
-        condition: service_healthy
 
   data_base:
     build:
@@ -37,6 +34,20 @@ services:
       retries: 3
       start_period: 30s
 
+  backup:
+    build:
+      context: ./Backup
+      dockerfile: Dockerfile
+    volumes:
+      - ./back_up:/back_up
+    networks:
+      - app_network
+    depends_on:
+      data_base:
+        condition: service_healthy
+
 networks:
   app_network:
     driver: bridge
+
+
