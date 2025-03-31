@@ -1,0 +1,19 @@
+<!-- templates/accueil.html -->
+{% extends "base.html" %}
+
+{% block title %}Mon Application Multi-pages - Accueil{% endblock %}
+
+{% block content %}
+<h1>Classement</h1>
+
+<div id="display_stat">
+    <form id="playerForm">
+        <label for="playerId">ID Joueur :</label>
+        <input type="text" id="playerId" name="playerId" required>
+        <button type="button" onclick="fetchPlayerInfo()">Rechercher Joueur</button>
+    </form>
+    <div id="playerInfo"></div>
+</div>
+
+
+{% endblock %}

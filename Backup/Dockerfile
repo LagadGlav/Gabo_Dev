@@ -8,7 +8,7 @@ WORKDIR /Backup
 RUN pip install requests
 
 # Copier le script
-COPY . .
+COPY backup.py ./backup.py
 
 # Point d'entrée pour exécuter le script au démarrage
 CMD ["python", "backup.py"]

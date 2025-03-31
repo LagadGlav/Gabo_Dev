@@ -1,0 +1,24 @@
+<!-- templates/accueil.html -->
+{% extends "base.html" %}
+
+{% block title %}Mon Application Multi-pages - Accueil{% endblock %}
+
+{% block content %}
+<header>
+    <h1>Gabo acceuil</h1>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('main.ajouter_partie') }}">Ajouter une partie</a></li>
+            <li><a href="{{ url_for('main.scoreboard') }}">Scoreboard</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main>
+    <h2>Bienvenue sur la page d'accueil</h2>
+</main>
+
+<footer>
+    <p>Version test, veuillez remonter toute erreur</p>
+</footer>
+{% endblock %}

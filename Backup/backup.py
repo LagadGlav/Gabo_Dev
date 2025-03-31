@@ -86,8 +86,8 @@ if __name__ == "__main__":
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
     DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
-    BACKUP_PATH = os.getenv("BACKUP_PATH", "Backup/back_up")
-    FLASK_URL = os.getenv("FLASK_URL", "http://front_end:80/ready")
+    BACKUP_PATH = os.getenv("BACKUP_PATH", "/back_up")
+    FLASK_URL = os.getenv("FLASK_URL", "http://app:8000/ready")
 
     # Wait for database readiness
     wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
@@ -101,7 +101,7 @@ if __name__ == "__main__":
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)
         if backup_status == True:
-            time.sleep(60)
+            time.sleep(3600)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
 

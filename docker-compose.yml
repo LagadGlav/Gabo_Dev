@@ -1,14 +1,28 @@
 version: "3.9"
 
 services:
-  front_end:
+  app:
     build:
       context: ./APP
       dockerfile: Dockerfile
-    ports:
-      - "80:80"
+    volumes:
+      - ./APP/Front_End/static:/APP/Front_End/static
+      - ./APP/Front_End/templates:/APP/Front_End/templates
+    expose:
+      - "8000"
     networks:
       - app_network
+
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"  # Le proxy Nginx sera accessible depuis l'extérieur sur le port 80
+    networks:
+      - app_network
+    depends_on:
+      - app
 
   data_base:
     build:
@@ -49,5 +63,6 @@ services:
 networks:
   app_network:
     driver: bridge
+
 
 

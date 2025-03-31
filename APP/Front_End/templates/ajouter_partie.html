@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Ajouter une Partie{% endblock %}
+
+{% block content %}
+<h1>Ajouter une Partie</h1>
+
+<button type="button" onclick="openNewGameForm()">Nouvelle Partie</button>
+
+<div id="newGameForm" class="hidden">
+    <form id="playerForm">
+        <label for="playerId">ID Joueur :</label>
+        <input type="text" id="playerId" name="playerId" required>
+        <button type="button" onclick="fetchPlayerInfo()">Ajouter Joueur</button>
+    </form>
+</div>
+
+<h2>Tableau des Parties</h2>
+<table border="1" id="savedTable">
+    <thead>
+    <tr>
+        <th>ID Partie</th>
+        <th>Nom du Joueur (ELO)</th>
+        <th>Score</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- Les parties ajoutées apparaîtront ici -->
+    </tbody>
+</table>
+<button type="button" id="sendTableButton">Envoyer le tableau</button>
+
+{% endblock %}

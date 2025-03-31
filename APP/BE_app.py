@@ -1,4 +1,6 @@
 from webbrowser import Error
+import logging
+from Front_End.blueprints.main import main_bp
 
 from flask import Flask, render_template, request, jsonify
 from threading import Lock
@@ -12,9 +14,15 @@ import time
 import mysql.connector
 import mysql.connector.pooling
 
-import subprocess
+app = Flask(__name__, template_folder='Front_End/templates', static_folder='Front_End/static')
 
-app = Flask(__name__, template_folder='Front_End/html', static_folder='Front_End')
+app.register_blueprint(main_bp)
+
+# Configure le logger pour qu'il affiche les messages INFO (et plus)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+app.logger.setLevel(logging.INFO)
+app.logger.propagate = True  # Permet de faire remonter les messages au logger parent (par ex. Gunicorn)
 
 
 def get_connection():
@@ -26,8 +34,7 @@ def get_connection():
     )
     return connection
 
-
-class game:
+class Game:
     def __init__(self, id_game,nb_joueurs, id_joueur, score, rang):
         self.score = score
         self.id_game = id_game
@@ -35,9 +42,9 @@ class game:
         self.id_joueur = id_joueur
         self.rang = rang
     def __str__(self):
-        return f"Partie({[(self.id_game, self.nb_joueurs, self.id_joueur, self.score, self.rang)]})"
+        return f"Partie in queue({[(self.id_game, self.nb_joueurs, self.id_joueur, self.score, self.rang)]})"
 
-class queue:
+class Queue:
     def __init__(self):
         self.queue = []
 
@@ -63,8 +70,6 @@ class queue:
 
     def display(self):
         return [str(obj) for obj in self.queue]
-
-
 
 def send_to_database(p):
     connection = None
@@ -113,7 +118,6 @@ def send_to_database_j(id_joueur, nom):
 
     return True
 
-
 def connect_to_database_interro():
     """Function to establish in case of disconnectin  a connection to the MySQL database.
     Retries the connection up to 10 times with a 1-second delay between attempts."""
@@ -136,55 +140,29 @@ def connect_to_database_interro():
         time.sleep(1)
     raise Exception("Impossible to connect to the database after several attempts")
 
+@app.route('/get_player_info')
+def get_player_info():
+    player_id = request.args.get('playerId')
+    app.logger.info(f"Recherche Joueur : {player_id}")
+    connection = mysql.connector.connect(
+        host="data_base",
+        user="root",
+        password="Gabo",
+        database="Gabo_base"
+    )
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM Joueurs WHERE joueur_id = %s", (player_id,))
+    player = cursor.fetchone()
+    cursor.close()
+    connection.close()
 
-@app.route('/')
-def index():
-    time.sleep(1)
-    return render_template("Chtml.html")
+    if player:
+        app.logger.info(player)
+        return jsonify(player)
+    else:
+        return jsonify({'error': 'Joueur non trouvé'}), 404
 
-def sort_table(table):
-    # Tri par insertion
-    n = len(table[1])
-    try:
-        for i in range(1, n):
-            cle = table[1][i]
-            cle_valeur = table[0][i]  # Sauvegarde de la première ligne associée
-            j = i - 1
-            while j >= 0 and table[1][j] > cle:
-                table[1][j + 1] = table[1][j]  # Décale la deuxième ligne
-                table[0][j + 1] = table[0][j]  # Décale la première ligne associée
-                j -= 1
-            table[1][j + 1] = cle
-            table[0][j + 1] = cle_valeur
-        return table
-    except Error as e:
-        raise f"Error sorting table : {e}"
 
-def format_table(table):
-    table = table[0]
-
-    table = [list(map(int, item.replace(',', '').split())) for item in table]
-
-    id = table[0][0]
-    nb_joueurs = table[1][0]
-
-    table = sort_table(table)
-
-    for i in range(1, len(table[0])):
-        id_joueur = table[0][i]
-        score = table[1][i]
-        rang = i
-        p_received = game(id, nb_joueurs, id_joueur, score, rang)
-        with lock:
-            try:
-                Q.add_queue(p_received)
-            except Error as e:
-                raise f"Error add to queue : {e}"
-    app.logger.info(Q.display())
-    em = Q.empty_queue()
-    table = get_all_players()
-    app.logger.info(table)
-    return em
 
 def get_all_players():
     """Récupère toutes les lignes de la table 'joueurs' depuis MySQL."""
@@ -214,23 +192,53 @@ def get_all_players():
             connection.close()  # Libère la connexion
 
 
+def format_table(table):
+    table = [list(map(int, item.replace(',', '').split())) for item in table]
+
+    table = sort_table(table)
+    app.logger.info(table)
+    return table
+
+def insertion(table):
+    for i in range(1, len(table[0])):
+        id = table[0][0]
+        id_joueur = table[0][i]
+        score = table[1][i]
+        nb_joueurs = table[1][0]
+        rang = i
+        p_received = Game(id, nb_joueurs, id_joueur, score, rang)
+        with lock:
+            try:
+                Q.add_queue(p_received)
+            except Error as e:
+                raise f"Error add to queue : {e}"
+    Q.display()
+    return True
+
+def sort_table(table):
+    # Tri par insertion
+    n = len(table[1])
+    try:
+        for i in range(1, n):
+            cle = table[1][i]
+            cle_valeur = table[0][i]  # Sauvegarde de la première ligne associée
+            j = i - 1
+            while j >= 0 and table[1][j] > cle:
+                table[1][j + 1] = table[1][j]  # Décale la deuxième ligne
+                table[0][j + 1] = table[0][j]  # Décale la première ligne associée
+                j -= 1
+            table[1][j + 1] = cle
+            table[0][j + 1] = cle_valeur
+        return table
+    except Error as e:
+        raise f"Error sorting table : {e}"
 
 @app.route('/save_table', methods=['POST'])
 def receive_table():
-
-    if get_all_players() == []:
-        send_to_database_j(14, "Marco")
-        send_to_database_j(15, "Gerveur")
-        send_to_database_j(198, "Andrée")
-    else:
-        app.logger.info("No need to load players")
-
     data = request.json
     app.logger.info("Connecting...")
 
     app.logger.info("Réussie")
-
-    get_all_players()
 
     data = request.json
     if not data or "table" not in data:
@@ -240,11 +248,17 @@ def receive_table():
     if not table or not isinstance(table, list):
         return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
 
-    format_table(table)
-    return jsonify({"message": "Table received and stored"}), 200
+    app.logger.info(table)
+    table = format_table(table)
+
+    val = insertion(table)
+    Q.empty_queue()
+    if val == True:
+        return jsonify({"message": "Game received and stored"}), 200
+    else:
+        return jsonify({"message": "Unable to store the game"}), 400
 
 is_ready = False
-# Route pour recevoir la notification is ready
 @app.route('/ready', methods=['GET'])
 def notify_ready():
     global is_ready
@@ -263,12 +277,17 @@ def notify_ready():
     app.logger.info("Start up successed : App is ready")
     return "App is ready", 200
 
+Q = Queue()
 def start_up():
-    global Q
     time.sleep(1)
-    Q = queue()
     connexion = connect_to_database_interro()
     app.logger.info("Connected")
+    if get_all_players() == []:
+        send_to_database_j(14, "Marco")
+        send_to_database_j(15, "Gerveur")
+        send_to_database_j(198, "Andrée")
+    else:
+        app.logger.info("No need to load players")
     return
 
 if __name__ == "__main__":
