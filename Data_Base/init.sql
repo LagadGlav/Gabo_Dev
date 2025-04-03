@@ -22,6 +22,7 @@ CREATE TABLE Partie (
                         joueur_id INT,
                         joueur_score INT,
                         rang INT,
+                        var_elo FLOAT,
                         date_partie DATETIME DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT id PRIMARY KEY (partie_id, joueur_id),
                         FOREIGN KEY (joueur_id) REFERENCES Joueurs(joueur_id) ON DELETE CASCADE
@@ -54,6 +55,10 @@ BEGIN
 
     UPDATE Joueurs
     SET ratio_rang = IF(nombre_partie > 0, (ratio_rang * (nombre_partie - 1) + NEW.rang / NEW.nombre_joueur) / nombre_partie, 0)
+    WHERE joueur_id = NEW.joueur_id;
+
+    UPDATE Joueurs
+    SET elo = elo + NEW.var_elo
     WHERE joueur_id = NEW.joueur_id;
 END;
 //

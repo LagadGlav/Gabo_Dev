@@ -35,12 +35,13 @@ def get_connection():
     return connection
 
 class Game:
-    def __init__(self, id_game,nb_joueurs, id_joueur, score, rang):
+    def __init__(self, id_game,nb_joueurs, id_joueur, score, rang, var_elo):
         self.score = score
         self.id_game = id_game
         self.nb_joueurs = nb_joueurs
         self.id_joueur = id_joueur
         self.rang = rang
+        self.var_elo = var_elo
     def __str__(self):
         return f"Partie in queue({[(self.id_game, self.nb_joueurs, self.id_joueur, self.score, self.rang)]})"
 
@@ -78,7 +79,7 @@ def send_to_database(p):
         cursor = connection.cursor()
 
         query = """
-            INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang)
+            INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang, car_elo)
             VALUES (%s, %s, %s, %s, %s)
         """
         data = (p.id_game, p.nb_joueurs, p.id_joueur, p.score, p.rang)
@@ -164,6 +165,31 @@ def get_player_info():
 
 
 
+@app.route('/save_player', methods=['POST'])
+def save_player():
+    data = request.json
+    if not data or 'playerId' not in data or 'playername' not in data:
+        return jsonify({'error': 'Invalid data'}), 400
+
+    playerId = data['playerId']
+    playername = data['playername']
+    app.logger.info(f"Nouveau Joueur : {playerId}")
+    app.logger.info(f"Nouveau Joueur : {playername}")
+
+    try:
+        # Simulez l'enregistrement dans la base de données
+        send_to_database_j(playerId, playername)
+        return jsonify({
+            'message': 'Votre profil a été enregistré',
+            'variables': [playerId, playername]  # Renvoyer la liste des variables
+        }), 200
+    except Exception as e:
+        app.logger.error(e)
+        return jsonify({'error': 'Id déjà pris'}), 404
+
+
+
+
 def get_all_players():
     """Récupère toutes les lignes de la table 'joueurs' depuis MySQL."""
     connection = None
@@ -193,20 +219,38 @@ def get_all_players():
 
 
 def format_table(table):
-    table = [list(map(int, item.replace(',', '').split())) for item in table]
 
-    table = sort_table(table)
     app.logger.info(table)
+    table = sort_table(table)
+    app.logger.info(f"Sorted : {table}")
     return table
 
+def get_var_elo(table):
+    elo = table[2]
+    var_elo = [0] * len(elo)
+    for i in range(len(elo)-1):
+        for j in range(i+1,len(elo)):
+            var_elo[i] += (j-i)*(int(table[1][j])-int(table[1][i]))*(abs(elo[j]-elo[i])/elo[i])
+            var_elo[j] += -var_elo[i]
+            app.logger.info(var_elo[i])
+            app.logger.info(var_elo[j])
+            app.logger.info(var_elo)
+    app.logger.info(f"Var Elo : {var_elo}")
+    return var_elo
+
+
+id = 2
 def insertion(table):
-    for i in range(1, len(table[0])):
-        id = table[0][0]
+    global id
+    var_elo = get_var_elo(table)
+    for i in range(0, len(table[0])):
         id_joueur = table[0][i]
         score = table[1][i]
-        nb_joueurs = table[1][0]
-        rang = i
-        p_received = Game(id, nb_joueurs, id_joueur, score, rang)
+        nb_joueurs = len(table[0])
+        rang = i+1
+        var_elo = var_elo[i]
+        p_received = Game(id, nb_joueurs, id_joueur, score, rang, var_elo)
+        id += 1
         with lock:
             try:
                 Q.add_queue(p_received)
@@ -218,17 +262,23 @@ def insertion(table):
 def sort_table(table):
     # Tri par insertion
     n = len(table[1])
+    table[1] = [int(score) for score in table[1]]
+
     try:
         for i in range(1, n):
             cle = table[1][i]
-            cle_valeur = table[0][i]  # Sauvegarde de la première ligne associée
+            cle_valeur1 = table[0][i]  # Sauvegarde de la première ligne associée
+            cle_valeur2 = table[2][i]  # Sauvegarde de la troisième ligne associée
             j = i - 1
             while j >= 0 and table[1][j] > cle:
+                app.logger.info(f"Tri : {table[1][j]} > {cle}")
                 table[1][j + 1] = table[1][j]  # Décale la deuxième ligne
                 table[0][j + 1] = table[0][j]  # Décale la première ligne associée
+                table[2][j + 1] = table[2][j]  # Décale la troisième ligne associée
                 j -= 1
             table[1][j + 1] = cle
-            table[0][j + 1] = cle_valeur
+            table[0][j + 1] = cle_valeur1
+            table[2][j + 1] = cle_valeur2
         return table
     except Error as e:
         raise f"Error sorting table : {e}"
@@ -236,11 +286,7 @@ def sort_table(table):
 @app.route('/save_table', methods=['POST'])
 def receive_table():
     data = request.json
-    app.logger.info("Connecting...")
 
-    app.logger.info("Réussie")
-
-    data = request.json
     if not data or "table" not in data:
         return jsonify({"error": "Invalid input: 'table' key is missing"}), 400
 
@@ -248,15 +294,18 @@ def receive_table():
     if not table or not isinstance(table, list):
         return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
 
+    app.logger.info("Réussie")
     app.logger.info(table)
+
     table = format_table(table)
 
     val = insertion(table)
     Q.empty_queue()
-    if val == True:
+    if val:
         return jsonify({"message": "Game received and stored"}), 200
     else:
         return jsonify({"message": "Unable to store the game"}), 400
+
 
 is_ready = False
 @app.route('/ready', methods=['GET'])
@@ -282,13 +331,6 @@ def start_up():
     time.sleep(1)
     connexion = connect_to_database_interro()
     app.logger.info("Connected")
-    if get_all_players() == []:
-        send_to_database_j(14, "Marco")
-        send_to_database_j(15, "Gerveur")
-        send_to_database_j(198, "Andrée")
-    else:
-        app.logger.info("No need to load players")
-    return
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True)

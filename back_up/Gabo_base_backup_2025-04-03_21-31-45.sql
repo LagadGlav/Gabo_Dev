@@ -42,9 +42,9 @@ CREATE TABLE `Joueurs` (
 LOCK TABLES `Joueurs` WRITE;
 /*!40000 ALTER TABLE `Joueurs` DISABLE KEYS */;
 INSERT INTO `Joueurs` VALUES
-(14,'Marco',0,0,0,0,500),
-(15,'Gerveur',0,0,0,0,500),
-(198,'Andrée',0,0,0,0,500);
+(1,'Marco',0,0,0,0,500),
+(2,'Gervor',0,0,0,0,500),
+(3,'Andrée',0,0,0,0,500);
 /*!40000 ALTER TABLE `Joueurs` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -61,6 +61,7 @@ CREATE TABLE `Partie` (
   `joueur_id` int NOT NULL,
   `joueur_score` int DEFAULT NULL,
   `rang` int DEFAULT NULL,
+  `var_elo` float DEFAULT NULL,
   `date_partie` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`partie_id`,`joueur_id`),
   KEY `joueur_id` (`joueur_id`),
@@ -88,11 +89,11 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `after_insert_partie` AFTER INSERT ON `Partie` FOR EACH ROW BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
         BEGIN
-            -- Handle the exception by rolling back the parent statement
+            
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error in after_insert_partie trigger';
         END;
 
-    -- Perform updates without transaction control
+    
     UPDATE Joueurs
     SET nombre_partie = nombre_partie + 1
     WHERE joueur_id = NEW.joueur_id;
@@ -107,6 +108,10 @@ DELIMITER ;;
 
     UPDATE Joueurs
     SET ratio_rang = IF(nombre_partie > 0, (ratio_rang * (nombre_partie - 1) + NEW.rang / NEW.nombre_joueur) / nombre_partie, 0)
+    WHERE joueur_id = NEW.joueur_id;
+
+    UPDATE Joueurs
+    SET elo = elo + NEW.var_elo
     WHERE joueur_id = NEW.joueur_id;
 END */;;
 DELIMITER ;
@@ -126,11 +131,11 @@ DELIMITER ;;
 /*!50003 CREATE*/ /*!50017 DEFINER=`root`@`localhost`*/ /*!50003 TRIGGER `after_delete_partie` AFTER DELETE ON `Partie` FOR EACH ROW BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
         BEGIN
-            -- Handle the exception by rolling back the parent statement
+            
             SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'Error in after_delete_partie trigger';
         END;
 
-    -- Perform updates without transaction control
+    
     UPDATE Joueurs
     SET nombre_partie = nombre_partie - 1
     WHERE joueur_id = OLD.joueur_id;
@@ -162,4 +167,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-03-30  0:37:49
+-- Dump completed on 2025-04-03 21:31:45

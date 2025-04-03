@@ -15,3 +15,7 @@ def ajouter_partie():
 def scoreboard():
     return render_template('scoreboard.html')
 
+@main_bp.route('/ajouter_joueur')
+def ajouter_joueur():
+    return render_template('ajouter_joueur.html')
+

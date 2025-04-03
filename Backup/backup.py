@@ -101,7 +101,7 @@ if __name__ == "__main__":
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)
         if backup_status == True:
-            time.sleep(3600)
+            time.sleep(60)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
 

@@ -11,23 +11,23 @@
     <form id="playerForm">
         <label for="playerId">ID Joueur :</label>
         <input type="text" id="playerId" name="playerId" required>
-        <button type="button" onclick="fetchPlayerInfo()">Ajouter Joueur</button>
+        <button type="button" onclick="fetchPlayerInfo_2()">Ajouter Joueur</button>
+        <table border="1" id="savedTable">
+            <thead>
+            <tr>
+                <th>ID Partie</th>
+                <th>Nom du Joueur (ELO)</th>
+                <th>Score</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Les joueurs ajoutés apparaîtront ici -->
+            </tbody>
+        </table>
+        <button id="sendTableButton">Envoyer partie</button>
     </form>
 </div>
 
-<h2>Tableau des Parties</h2>
-<table border="1" id="savedTable">
-    <thead>
-    <tr>
-        <th>ID Partie</th>
-        <th>Nom du Joueur (ELO)</th>
-        <th>Score</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Les parties ajoutées apparaîtront ici -->
-    </tbody>
-</table>
-<button type="button" id="sendTableButton">Envoyer le tableau</button>
+<div id="playerInfo"></div>
 
 {% endblock %}
