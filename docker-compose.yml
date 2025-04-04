@@ -53,7 +53,7 @@ services:
       context: ./Backup
       dockerfile: Dockerfile
     volumes:
-      - ./Backup/back_up:Backup/back_up
+      - ./Backup/back_up:/Backup/back_up
     expose:
       - "8080"
     networks:

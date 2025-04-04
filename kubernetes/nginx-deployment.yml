@@ -17,6 +17,6 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: <docker_username>/nginx:latest
+          image: lagadglav/nginx:latest
           ports:
             - containerPort: 80

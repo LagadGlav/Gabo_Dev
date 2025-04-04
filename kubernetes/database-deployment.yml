@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: database
-          image: <docker_username>/database:latest
+          image: lagadglav/database:latest
           env:
             - name: DB_HOST
               value: "data_base"

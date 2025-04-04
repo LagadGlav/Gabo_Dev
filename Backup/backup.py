@@ -86,7 +86,7 @@ if __name__ == "__main__":
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
     DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
-    BACKUP_PATH = os.getenv("BACKUP_PATH", "/back_up")
+    BACKUP_PATH = os.getenv("BACKUP_PATH", "/Backup/back_up")
     FLASK_URL = os.getenv("FLASK_URL", "http://app:8000/ready")
 
     # Wait for database readiness

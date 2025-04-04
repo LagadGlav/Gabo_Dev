@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: backup
-          image: <docker_username>/backup:latest
+          image: lagadglav/backup:latest
           volumeMounts:
             - name: backup-volume
               mountPath: /Backup
