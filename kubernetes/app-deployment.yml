@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  namespace: my-app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: <docker_username>/app:latest
+          ports:
+            - containerPort: 8000
+          volumeMounts:
+            - mountPath: /APP/Front_End/static
+              name: static-volume
+            - mountPath: /APP/Front_End/templates
+              name: templates-volume
+          volumes:
+            - name: static-volume
+              hostPath:
+                path: /APP/Front_End/static
+            - name: templates-volume
+              hostPath:
+                path: /APP/Front_End/templates
