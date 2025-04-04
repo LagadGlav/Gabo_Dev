@@ -22,22 +22,22 @@ jobs:
     # Build and push Docker images
     - name: Build and Push App Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/app:latest Gabo/APP
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/app:latest ./Gabo/APP
         docker push ${{ secrets.DOCKER_USERNAME }}/app:latest
 
     - name: Build and Push Nginx Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/nginx:latest Gabo/nginx
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/nginx:latest ./Gabo/nginx
         docker push ${{ secrets.DOCKER_USERNAME }}/nginx:latest
 
     - name: Build and Push Database Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/database:latest /GaboData_Base
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/database:latest ./Gabo/Data_Base
         docker push ${{ secrets.DOCKER_USERNAME }}/database:latest
 
     - name: Build and Push Backup Image
       run: |
-        docker build -t ${{ secrets.DOCKER_USERNAME }}/backup:latest /GaboBackup
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/backup:latest ./Gabo/GaboBackup
         docker push ${{ secrets.DOCKER_USERNAME }}/backup:latest
 
     # Deploy Kubernetes files to Raspberry Pi
