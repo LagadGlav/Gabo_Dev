@@ -1,0 +1,51 @@
+name: Build, Push, and Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main  # Trigger on pushes to the main branch
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    # Login to Docker Hub
+    - name: Login to Docker Hub
+      run: |
+        echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+    # Build and push Docker images
+    - name: Build and Push App Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/app:latest ./Gabo/APP
+        docker push ${{ secrets.DOCKER_USERNAME }}/app:latest
+
+    - name: Build and Push Nginx Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/nginx:latest ./Gabo/nginx
+        docker push ${{ secrets.DOCKER_USERNAME }}/nginx:latest
+
+    - name: Build and Push Database Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/database:latest ./Gabo/Data_Base
+        docker push ${{ secrets.DOCKER_USERNAME }}/database:latest
+
+    - name: Build and Push Backup Image
+      run: |
+        docker build -t ${{ secrets.DOCKER_USERNAME }}/backup:latest ./Gabo/GaboBackup
+        docker push ${{ secrets.DOCKER_USERNAME }}/backup:latest
+
+    # Deploy Kubernetes files to Raspberry Pi
+    - name: Deploy to Kubernetes
+      run: |
+        ssh -o StrictHostKeyChecking=no pi@<raspberry-ip> "rm -rf ~/kubernetes && mkdir ~/kubernetes"
+        scp -r ./kubernetes/* pi@<raspberry-ip>:~/kubernetes
+        ssh -o StrictHostKeyChecking=no pi@<raspberry-ip> << EOF
+          kubectl apply -f ~/kubernetes/namespace.yml
+          kubectl apply -f ~/kubernetes
+        EOF
