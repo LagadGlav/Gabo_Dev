@@ -279,7 +279,7 @@ def save_player():
     app.logger.info(f"Nouveau Joueur : {playername} ({playerId})")
 
     try:
-        # Simulate saving to the database
+        # Try saving the player to the database
         send_to_database_j(playerId, playername)
         return jsonify({
             'message': 'Votre profil a été enregistré',  # Profile saved successfully
