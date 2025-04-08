@@ -40,10 +40,10 @@ def restore_latest_backup(backup_path, host, port, user, password, database):
     subprocess.run(restore_command, shell=True)
     logging.info("Backup restoration completed.")
 
-def notify_flask_service(flask_url):
+def notify_service(url):
     try:
-        logging.info(f"Notifying Flask service at {flask_url}...")
-        response = requests.get(flask_url)
+        logging.info(f"Notifying Flask service at {url}...")
+        response = requests.get(url)
         logging.info(f"Notification sent! Flask responded: {response.status_code}")
     except Exception as e:
         logging.info(f"Failed to notify Flask service: {e}")
@@ -87,7 +87,10 @@ if __name__ == "__main__":
     DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
     DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
     BACKUP_PATH = os.getenv("BACKUP_PATH", "/Backup/back_up")
-    FLASK_URL = os.getenv("FLASK_URL", "http://app:8000/ready")
+    FLASK_URL = os.getenv("FLASK_APP_URL", "http://app:8000/ready")
+    API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010/ready")
+    API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/ready")
+
 
     # Wait for database readiness
     wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
@@ -95,8 +98,14 @@ if __name__ == "__main__":
     # Restore the latest backup
     restore_latest_backup(BACKUP_PATH, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
 
-    # Notify the Flask service
-    notify_flask_service(FLASK_URL)
+    # Notify the Flask service, ready to run
+    notify_service(FLASK_URL)
+
+    # Notify the API-AP service, ready to run
+    notify_service(API_AP_URL)
+
+    # Notify the API-AG service, ready to run
+    notify_service(API_AG_URL)
 
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)

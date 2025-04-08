@@ -1,0 +1,7 @@
+# Ignorer les fichiers inutiles
+.git
+__pycache__
+*.pyc
+*.pyo
+*.log
+.env

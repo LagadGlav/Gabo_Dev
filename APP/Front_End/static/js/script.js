@@ -4,7 +4,7 @@ function openNewGameForm() {
 
 function fetchPlayerInfo() {
     const playerId = document.getElementById('playerId').value;
-    fetch(`/get_player_info?playerId=${playerId}`)
+    fetch(`/api-ag/get_player_info?playerId=${playerId}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -21,7 +21,7 @@ function fetchPlayerInfo() {
 var list_player_info =[];
 function fetchPlayerInfo_2() {
     const playerId = document.getElementById('playerId').value;
-    fetch(`/get_player_info?playerId=${playerId}`)
+    fetch(`/api-ag/get_player_info?playerId=${playerId}`)
         .then(response => response.json())
         .then(data => {
             if (data.error) {
@@ -41,7 +41,7 @@ function fetchPlayerInfo_2() {
 function newPlayer() {
     const playerId = document.getElementById('playerId').value;
     const playername = document.getElementById('playernom').value;
-    fetch("/save_player", {
+    fetch('/api-ap/save_player', {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ playerId: playerId, playername: playername })
@@ -131,7 +131,7 @@ function sendTableToServer() {
 
     const tableData = [idsRow, scoresRow, eloRow];
 
-    fetch("/save_table", {
+    fetch("/api-ag/save_table", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ table: tableData })

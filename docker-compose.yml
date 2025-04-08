@@ -2,27 +2,49 @@ version: "3.9"
 
 services:
   app:
+    environment:
+      API_AP_URL: "http://api-add_player:8010/ready"
     build:
       context: ./APP
       dockerfile: Dockerfile
     volumes:
       - ./APP/Front_End/static:/APP/Front_End/static
       - ./APP/Front_End/templates:/APP/Front_End/templates
+      - ./utils:/utils
     expose:
       - "8000"
     networks:
       - app_network
 
-  nginx:
+  api-add_player:
     build:
-      context: ./nginx
+      context: ./API-AP
       dockerfile: Dockerfile
-    ports:
-      - "80:80"  # Le proxy Nginx sera accessible depuis l'extérieur sur le port 80
+    volumes:
+      - ./API-AP:/API-AP
+      - ./utils:/utils
+    expose:
+      - "8010"
     networks:
       - app_network
     depends_on:
-      - app
+      data_base:
+        condition: service_healthy
+
+  api-add_game:
+    build:
+      context: ./API-AG
+      dockerfile: Dockerfile
+    volumes:
+      - ./API-AG:/API-AG
+      - ./utils:/utils
+    expose:
+      - "8020"
+    networks:
+      - app_network
+    depends_on:
+      data_base:
+        condition: service_healthy
 
   data_base:
     build:
@@ -48,19 +70,36 @@ services:
       retries: 3
       start_period: 30s
 
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"  # Le proxy Nginx sera accessible depuis l'extérieur sur le port 80
+    networks:
+      - app_network
+    depends_on:
+      - app
+      - api-add_player
+      - api-add_game
+
   backup:
+    environment:
+      FLASK_APP_URL: "http://app:8000/ready"
+      API_AP_URL: "http://api-add_player:8010/ready"
     build:
       context: ./Backup
       dockerfile: Dockerfile
     volumes:
       - ./Backup/back_up:/Backup/back_up
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     networks:
       - app_network
     depends_on:
       data_base:
         condition: service_healthy
+
 
 networks:
   app_network:
