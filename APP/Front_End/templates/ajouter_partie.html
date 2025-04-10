@@ -1,22 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Ajouter une Partie{% endblock %}
+{% block title %}Gabo{% endblock %}
 
 {% block content %}
 <h1>Ajouter une Partie</h1>
 
 <button type="button" onclick="openNewGameForm()">Nouvelle Partie</button>
+<button type="button" onclick="resetGameForm()">Reset table de marque</button>
 
 <div id="newGameForm" class="hidden">
     <form id="playerForm">
         <label for="playerId">ID Joueur :</label>
         <input type="text" id="playerId" name="playerId" required>
-        <button type="button" onclick="fetchPlayerInfo_2()">Ajouter Joueur</button>
+        <button type="button" onclick="fetchPlayerInfo()">Ajouter Joueur</button>
         <table border="1" id="savedTable">
             <thead>
             <tr>
-                <th>ID Partie</th>
-                <th>Nom du Joueur (ELO)</th>
+                <th>Joueur</th>
+                <th>Statisques (ELO)</th>
                 <th>Score</th>
             </tr>
             </thead>
@@ -28,6 +29,7 @@
     </form>
 </div>
 
-<div id="playerInfo"></div>
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ajouter_partie.css') }}">
+<script src="{{ url_for('static', filename='js/display/ajouter_partie-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api/ajouter_partie-api.js') }}"></script>
 {% endblock %}

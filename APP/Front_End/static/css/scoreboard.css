@@ -1,0 +1,102 @@
+#scoreboard {
+    width: 33%;
+    float: right;
+}
+
+.fixed-left {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 25vw;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.2);
+}
+
+.card {
+    background-color: grey;
+    position:relative;
+    padding-left: 10px;
+    padding-right: 10px;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 80%;
+    height: auto;
+    border: groove;
+    border-color: #90a0a0;
+    border-radius: 15px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    text-align: center;
+    color: white;
+    font-size: 16px;
+    overflow: auto;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.hidden {
+    display: none;
+}
+
+.playerForm{
+    position: relative;
+}
+
+.player_id {
+    display: block;
+    text-align: center;
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 80%;
+}
+
+.input_player_id {
+    background-color: grey;
+    border-color: #000000;
+    text-align: center;
+    padding-right: 20px;
+    padding-left: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 80%;
+}
+
+.find_player {
+    position: relative;
+    padding-right: 20px;
+    padding-left: 20px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    margin-left: 20px;
+    margin-right: 20px;
+    width: 70%;
+    border-radius: 15px;
+}
+
+.fixed-right {
+    position: fixed;
+    right: 0;
+    top: 0;
+    width: 250px;
+    height: 100vh;
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    box-shadow: -2px 0px 5px rgba(0, 0, 0, 0.2);
+}
+

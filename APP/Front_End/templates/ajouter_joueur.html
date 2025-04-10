@@ -1,7 +1,7 @@
 <!-- templates/accueil.html -->
 {% extends "base.html" %}
 
-{% block title %}Mon Application Multi-pages - Accueil{% endblock %}
+{% block title %}Gabo{% endblock %}
 
 {% block content %}
 <h1>Classement</h1>
@@ -16,5 +16,7 @@
     </form>
 </div>
 
-
+<link rel="stylesheet" href="{{ url_for('static', filename='css/ajouter_partie.css') }}">
+<script src="{{ url_for('static', filename='js/display/ajouter_joueur-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api/ajouter_joueur-api.js') }}"></script>
 {% endblock %}

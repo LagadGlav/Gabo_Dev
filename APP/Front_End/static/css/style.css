@@ -2,34 +2,6 @@
     display: none;
 }
 
-#newGameForm {
-    width: 100%;
-    float: left;
-}
 
-#scoreboard {
-    width: 33%;
-    float: right;
-}
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
 
-table, th, td {
-    border: 1px solid black;
-}
-
-th, td {
-    text-align: center;
-    padding: 8px;
-}
-
-th {
-    background-color: #f2f2f2;
-}
-
-td {
-    vertical-align: top;
-}

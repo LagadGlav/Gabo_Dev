@@ -8,7 +8,10 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
+
 {% block content %}{% endblock %}
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+<script src="{{ url_for('static', filename='js/display/base-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api/base-api.js') }}"></script>
 </body>
 </html>

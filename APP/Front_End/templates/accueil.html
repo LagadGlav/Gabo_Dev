@@ -1,11 +1,11 @@
 <!-- templates/accueil.html -->
 {% extends "base.html" %}
 
-{% block title %}Mon Application Multi-pages - Accueil{% endblock %}
+{% block title %}Gabo{% endblock %}
 
 {% block content %}
 <header>
-    <h1>Gabo acceuil</h1>
+    <h1>Gabo</h1>
     <nav>
         <ul>
             <li><a href="{{ url_for('main.ajouter_partie') }}">Ajouter une partie</a></li>
@@ -16,10 +16,13 @@
 </header>
 
 <main>
-    <h2>Bienvenue sur la page d'accueil</h2>
 </main>
 
 <footer>
     <p>Version test, veuillez remonter toute erreur</p>
 </footer>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/acceuil.css') }}">
+<script src="{{ url_for('static', filename='js/display/accueil-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api/accueil-api.js') }}"></script>
 {% endblock %}

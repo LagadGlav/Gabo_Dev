@@ -2,24 +2,15 @@ function openNewGameForm() {
     document.getElementById('newGameForm').classList.remove('hidden');
 }
 
-function fetchPlayerInfo() {
-    const playerId = document.getElementById('playerId').value;
-    fetch(`/api-ag/get_player_info?playerId=${playerId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                displayPlayerInfo(data);
-            }
-        })
-        .catch(error => {
-            console.error("Erreur lors de la requête :", error);
-        });
+function resetGameForm() {
+    const tableBody = document.getElementById('savedTable').getElementsByTagName('tbody')[0];
+    tableBody.innerHTML = ""; //
+    // Réinitialise la liste des joueurs ajoutés
+    list_player_info = [];
 }
 
 var list_player_info =[];
-function fetchPlayerInfo_2() {
+function fetchPlayerInfo() {
     const playerId = document.getElementById('playerId').value;
     fetch(`/api-ag/get_player_info?playerId=${playerId}`)
         .then(response => response.json())
@@ -38,35 +29,6 @@ function fetchPlayerInfo_2() {
         });
 }
 
-function newPlayer() {
-    const playerId = document.getElementById('playerId').value;
-    const playername = document.getElementById('playernom').value;
-    fetch('/api-ap/save_player', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId: playerId, playername: playername })
-    })
-        .then(response => response.json())
-        .then(data => {
-            alert(data.message);
-            console.log("Liste des variables :", data.variables); // Affiche la liste des variables
-        })
-        .catch(error => {
-            console.error("Erreur lors de l'envoi des données du joueur :", error);
-        });
-
-}
-
-function displayPlayerInfo(player) {
-    const playerInfoDiv = document.getElementById('playerInfo');
-    playerInfoDiv.innerHTML = `
-        <h3>${player.joueur_nom} (ELO: ${player.elo})</h3>
-        <p>Nombre de Parties: ${player.nombre_partie}</p>
-        <p>Score Total: ${player.score_total}</p>
-        <p>Ratio Score: ${player.ratio_score}</p>
-        <p>Ratio Rang: ${player.ratio_rang}</p>
-    `;
-}
 document.addEventListener("DOMContentLoaded", () => {
     const tableBody = document.getElementById("savedTable").getElementsByTagName("tbody")[0];
     if (!tableBody) {
@@ -91,9 +53,6 @@ function addPlayerToTable(player) {
     const playerInfo = ` - Parties: ${player.nombre_partie}, Score Total: ${player.score_total}, Ratio Score: ${player.ratio_score}, Ratio Rang: ${player.ratio_rang}`;
     playerInfoCell.innerText = playerInfo;
     scoreCell.innerHTML = `<input type="number" name="playerScore${player.joueur_id}" required>`;
-
-    // Effacer le formulaire d'information du joueur
-    document.getElementById('playerForm').reset();
 }
 
 
@@ -130,6 +89,7 @@ function sendTableToServer() {
     });
 
     const tableData = [idsRow, scoresRow, eloRow];
+    list_player_info = [];
 
     fetch("/api-ag/save_table", {
         method: "POST",
@@ -144,4 +104,3 @@ function sendTableToServer() {
             console.error("Erreur lors de l'envoi du tableau :", error);
         });
 }
-
