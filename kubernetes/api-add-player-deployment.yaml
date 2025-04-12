@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: api-add-player
+  name: api-add-player
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: api-add-player
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: /snap/kompose/19/kompose-linux-amd64 convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/app_network: "true"
+        io.kompose.service: api-add-player
+    spec:
+      containers:
+      - image: api-add-player
+        imagePullPolicy: ""
+        name: api-add-player
+        ports:
+        - containerPort: 8010
+        resources: {}
+        volumeMounts:
+        - mountPath: /API-AP
+          name: api-add-player-claim0
+        - mountPath: /utils
+          name: api-add-player-claim1
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+      - name: api-add-player-claim0
+        persistentVolumeClaim:
+          claimName: api-add-player-claim0
+      - name: api-add-player-claim1
+        persistentVolumeClaim:
+          claimName: api-add-player-claim1
+status: {}
