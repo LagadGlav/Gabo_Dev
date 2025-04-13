@@ -1,4 +1,4 @@
-version: "3.9"
+version: "3.0"
 
 services:
   app:
@@ -28,8 +28,7 @@ services:
     networks:
       - app_network
     depends_on:
-      data_base:
-        condition: service_healthy
+      - database
 
   api-add_game:
     build:
@@ -43,8 +42,7 @@ services:
     networks:
       - app_network
     depends_on:
-      data_base:
-        condition: service_healthy
+      - database
 
   data_base:
     build:
@@ -68,7 +66,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 3
-      start_period: 30s
+      # start_period: 30s
 
   nginx:
     build:
@@ -97,8 +95,7 @@ services:
     networks:
       - app_network
     depends_on:
-      data_base:
-        condition: service_healthy
+      - database
 
 
 networks:
