@@ -3,7 +3,7 @@ name: Déployer sur Raspberry Pi (password SSH)
 on:
   push:
     branches:
-      - main
+      - production
 
 jobs:
   deploy:
