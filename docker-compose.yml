@@ -1,4 +1,4 @@
-version: "3.0"
+version: "3.9"
 
 services:
   app:
@@ -28,7 +28,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - database
+      - data_base
 
   api-add_game:
     build:
@@ -42,7 +42,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - database
+      - data_base
 
   data_base:
     build:
@@ -95,7 +95,7 @@ services:
     networks:
       - app_network
     depends_on:
-      - database
+      - data_base
 
 
 networks:
