@@ -2,7 +2,6 @@ import logging
 import datetime
 import time
 import mysql.connector
-from http.server import HTTPServer, BaseHTTPRequestHandler
 import json
 import sys
 
@@ -14,8 +13,6 @@ logging.basicConfig(
 
 sys.path.append("/utils")
 from exceptions import DatabaseError, NetworkError, StartUpError
-
-
 
 def get_connexion():
     """
@@ -53,10 +50,11 @@ def connect_to_database_interro():
         try:
             logging.info(f"Tentative de connexion... ({attempt + 1}/{max_retries})")
             connection = get_connexion()
+            if connection:
+                connection.close()
             return connection
         except mysql.connector.Error as e:
             logging.error(f"Erreur lors de la connexion à la base de données : {e}")
             logging.info("Attente avant une nouvelle tentative...")
             time.sleep(1)
-
     raise DatabaseError("Impossible de se connecter à la base de données après plusieurs tentatives.")

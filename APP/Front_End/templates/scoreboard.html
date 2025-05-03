@@ -1,20 +1,31 @@
-<!-- templates/accueil.html -->
 {% extends "base.html" %}
 
 {% block title %}Gabo{% endblock %}
 
 {% block content %}
 
-<h1>Classement</h1>
-
-<div class="fixed-left" id="display_stat">
-    <form class="playerForm" id="playerForm">
-        <label class="player_id" for="playerId">ID Joueur</label>
-        <input class="input_player_id" type="text" id="playerId" name="playerId" required>
-        <button class="find_player" type="button" id="find_player" onclick="fetchPlayerInfo()">Rechercher Joueur</button>
-    </form>
-    <div class="card hidden" id="playerInfo"></div>
+<div id="display_stat">
+    <div class="container" id="search_player">
+        <form class="playerForm" id="playerForm">
+            <label class="player_id" for="playerId">ID Joueur</label>
+            <input class="input_player_id" type="text" id="playerId" name="playerId" required>
+            <button class="find_player" type="button" id="find_player" onclick="fetchPlayerInfo()">Rechercher Joueur</button>
+        </form>
+        <div id="playerInfoContainer"></div>
+        </div>
+    </div>
 </div>
+
+
+<div id="scoreboard">
+    <label class="section-title" for="scrollable">Scoreboard</label>
+    <div class="container">
+        <div class="content" id="scrollable">
+            <!-- Player cards will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/scoreboard.css') }}">
 <script src="{{ url_for('static', filename='js/display/scoreboard-display.js') }}"></script>

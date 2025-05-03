@@ -88,6 +88,72 @@ def save_player():
         app.logger.error(e)  # Log error if saving fails
         return jsonify({'error': 'Id déjà pris'}), 404  # ID already exists
 
+@app.route('/api-ap/get_player_info')
+def get_player_info():
+    """
+    Retrieve information about a player from the database using the player's ID.
+
+    Returns:
+        JSON: Player details if found, or an error message if not found.
+    """
+    player_id = request.args.get('playerId')  # Get the playerId parameter from the request
+    app.logger.info(f"Searching player : {player_id}")
+
+    connection = get_connexion()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM Joueurs WHERE joueur_id = %s", (player_id,))
+    player = cursor.fetchone()
+    cursor.close()
+    connection.close()
+
+    if player:
+        return jsonify(player)  # Return player data as JSON
+    else:
+        return jsonify({'error': 'Player not found'}), 404  # Return an error if not found
+
+@app.route('/api-ap/get_all_players')
+def send_all_players():
+    all_player = get_all_players()
+
+    if all_player != None:
+        return  jsonify(all_player)
+    else:
+        return jsonify({'Error': 'Players not found'}), 404
+
+def get_all_players():
+    """
+    Retrieve all rows from the 'Joueurs' table in MySQL.
+
+    Returns:
+        list: List of player rows if found, otherwise an empty list.
+    """
+    connection = None
+    all_player = None
+    try:
+        app.logger.info(f"Querying all players")
+
+        # Get a connection from the pool
+        connection = get_connexion()
+        # MySQL connector that supports dictionary cursors:
+        cursor = connection.cursor(dictionary=True)
+
+        # Query to fetch all rows from 'Joueurs'
+        query = "SELECT * FROM Joueurs ORDER BY elo DESC"
+        cursor.execute(query)
+        all_player = cursor.fetchall()  # Fetch all rows
+
+    except Error as e:
+        app.logger.info(f"Erreur lors de la récupération des données : {e}")
+        return []  # Handle any errors gracefully
+
+    finally:
+        if connection:
+            connection.close()  # Ensure the connection is closed after use
+
+    if all_player is None:
+        return None  # Return an empty list if no data found
+    return all_player
+
 @app.route('/ready', methods=['GET'])
 def notify_ready():
     """
@@ -112,13 +178,15 @@ def start_up():
     Fonction pour initialiser l'application et établir la connexion à la base de données.
     """
     time.sleep(1)
-    app.logger.info("Tentative de connexion à la base de données...")
+    app.logger.info("Connecting to database...")
     try:
-        connexion = connect_to_database_interro()
-        app.logger.info("Connexion à la base de données réussie.")
-    except DatabaseError as e:
-        app.logger.error(f"Erreur lors de la connexion à la base de données : {e}")
-        raise DatabaseError("Connexion échouée.")
+        connect_to_database_interro()  # Establish connection
+        app.logger.info("Connected")
+    except:
+        app.logger.info("Impossible to connect, restarting start_up phase")
+        start_up()
+        raise DatabaseError("Connexion failed.")
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8010, debug=True)

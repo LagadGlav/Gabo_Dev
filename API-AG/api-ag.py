@@ -412,16 +412,20 @@ def get_nb_partie():
     return id
 
 Q = Queue()
-id = 0
 def start_up():
     """
     Initialize the application and set up the database connection.
     """
-    global id
     time.sleep(1)
+
     app.logger.info("Connecting to database...")
-    connexion = connect_to_database_interro()  # Establish connection
-    app.logger.info("Connected")
+    try:
+        connect_to_database_interro()  # Establish connection
+        app.logger.info("Connected")
+    except:
+        app.logger.info("Impossible to connect, restarting start_up phase")
+        start_up()
+        raise DatabaseError("Connexion failed.")
 
     id = get_nb_partie()  # Retrieve maximum game ID
     id = id['MAX(partie_id)'] + 1

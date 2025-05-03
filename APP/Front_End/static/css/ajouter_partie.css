@@ -20,7 +20,16 @@ td {
     vertical-align: top;
 }
 
+.hidden {
+    display: none;
+}
+
+
 #newGameForm {
     width: 100%;
     float: left;
+}
+
+#new-game {
+
 }
