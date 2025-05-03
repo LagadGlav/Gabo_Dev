@@ -1,5 +1,6 @@
 function fetchPlayerInfo() {
     const playerId = document.getElementById('playerId').value;
+
     fetch(`/api-ap/get_player_info?playerId=${playerId}`)
         .then(response => response.json())
         .then(data => {

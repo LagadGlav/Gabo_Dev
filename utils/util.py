@@ -1,8 +1,6 @@
 import logging
-import datetime
 import time
 import mysql.connector
-import json
 import sys
 
 # Configure logging
