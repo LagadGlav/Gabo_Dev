@@ -5,8 +5,11 @@ RUN apt-get update && apt-get install -y mariadb-client && rm -rf /var/lib/apt/l
 
 WORKDIR /Backup
 
+# Copier le fichier requirements
+COPY requirements.txt .
+
 # Installer les dépendances
-RUN pip install requests
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le script
 COPY backup.py ./backup.py

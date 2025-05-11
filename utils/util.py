@@ -2,7 +2,9 @@ import logging
 import time
 import mysql.connector
 import sys
-
+import requests
+sys.path.append("/utils")
+from exceptions import DatabaseError, NetworkError, StartUpError
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,  # Set the level to INFO (adjust as needed: DEBUG, WARNING, ERROR)
@@ -56,3 +58,11 @@ def connect_to_database_interro():
             logging.info("Attente avant une nouvelle tentative...")
             time.sleep(1)
     raise DatabaseError("Impossible de se connecter à la base de données après plusieurs tentatives.")
+
+def notify_service(url):
+    try:
+        logging.info(f"Notifying Flask service at {url}...")
+        response = requests.get(url)
+        logging.info(f"Notification sent! Flask responded: {response.status_code}")
+    except Exception as e:
+        logging.info(f"Failed to notify Flask service: {e}")

@@ -152,12 +152,22 @@ def send_to_database(p):
 @app.route('/api-ag/get_player_info')
 def get_player_info():
     """
-    Retrieve information about a player from the database using the player's ID.
+    Retrieve information about a player from the database using either the player's ID or the player's name.
 
     Returns:
         JSON: Player details if found, or an error message if not found.
     """
-    player_id = request.args.get('playerId')  # Get the playerId parameter from the request
+    player = request.args.get('playerId') # Get the playerId/Name parameter from the request
+    app.logger.info(f"Nouveau joueur dans la partie: {player}")
+    
+    try:
+        player_id = int(player)
+    except ValueError as e:
+        app.logger.info("Searching by name in the indexbyname")
+        player_id = indexbyname[player]
+    except:
+        return jsonify({'error': 'Joueur non trouvé'}), 404  # Return an error if not found
+
     app.logger.info(f"Recherche Joueur : {player_id}")
 
     connection = get_connexion()
@@ -172,13 +182,15 @@ def get_player_info():
     else:
         return jsonify({'error': 'Joueur non trouvé'}), 404  # Return an error if not found
 
+indexbyname: dict = {}
 def get_all_players():
     """
-    Retrieve all rows from the 'Joueurs' table in MySQL.
+    Establish a hasmap of all players registered allowing to match Name and Id
 
     Returns:
         list: List of player rows if found, otherwise an empty list.
     """
+    app.logger.info(f"Generating new index table...")
     connection = None
     try:
         # Get a connection from the pool
@@ -186,13 +198,12 @@ def get_all_players():
         cursor = connection.cursor()
 
         # Query to fetch all rows from 'Joueurs'
-        query = "SELECT * FROM Joueurs"
+        query = "SELECT joueur_id, joueur_nom FROM Joueurs"
         cursor.execute(query)
         rows = cursor.fetchall()  # Fetch all rows
 
         if rows is None:
             return []  # Return an empty list if no data found
-        return rows
 
     except Error as e:
         app.logger.info(f"Erreur lors de la récupération des données : {e}")
@@ -201,6 +212,12 @@ def get_all_players():
     finally:
         if connection:
             connection.close()  # Ensure the connection is closed after use
+
+    for player in rows:
+        indexbyname[f"{player[1]}"] = player[0]
+
+    app.logger.info(f"New index table {indexbyname}")
+    return rows
 
 
 def calculate_elo(current_elo, opponent_elo, score_diff, result, k=1):
@@ -256,17 +273,16 @@ def get_var_elo(table):
     return var_elo
 
 
-def insertion(table):
+def insertion(table, id_temp):
     """
     Insert players and game data into a queue for processing.
 
     Args:
-        table (list): Table containing player IDs, scores, and Elo ratings.
-
+        :param table: Table containing player IDs, scores, and Elo ratings.
+        :param id_temp: Id of the game
     Returns:
         bool: True if insertion is successful, otherwise raises an error.
     """
-    global id  # Global game ID variable
     var_elo = get_var_elo(table)  # Compute Elo variations
 
     for i in range(0, len(table[0])):
@@ -275,7 +291,7 @@ def insertion(table):
         nb_joueurs = len(table[0])  # Total number of players
         rang = i + 1  # Rank based on score
         var_elo_ = math.floor(var_elo[i] / 10)  # Adjust Elo variation
-        p_received = Game(id, nb_joueurs, id_joueur, score, rang, var_elo_)
+        p_received = Game(id_temp, nb_joueurs, id_joueur, score, rang, var_elo_)
 
         with lock:  # Ensure thread-safe access to the queue
             try:
@@ -335,9 +351,11 @@ def receive_table():
         JSON: Success or error message depending on the result.
     """
     global id
+    id_temp = -1
     with lock:
         try:
             id += 1  # Ensure thread-safe access to the global ID variable
+            id_temp = id
         except:
             app.logger.error(f"Erreur calcul id_partie")
 
@@ -351,7 +369,7 @@ def receive_table():
         return jsonify({"error": "Invalid input: 'table' must be a non-empty list"}), 400
 
     table = sort_table(table)  # Sort the table
-    val = insertion(table)  # Insert data into the queue
+    val = insertion(table, id_temp)  # Insert data into the queue
     Q.empty_queue()  # Clear the queue
 
     if val:
@@ -384,6 +402,27 @@ def notify_ready():
     app.logger.info("Start up succeeded : App is ready")
     return "App is ready", 200
 
+@app.route('/reload_indexbyname', methods=['GET'])
+def reload_mapping():
+    """
+    Notified that the app is ready and service start up can process.
+
+    Returns:
+        str: Success message indicating readiness.
+    """
+    app.logger.info("Notification reçue : Nouveau joueur ajouté dans la base de données.")
+
+    app.logger.info("Reloading name mapping...")
+
+    try:
+        get_all_players()
+    except:
+        app.logger.info("Reload failed !")
+        return
+
+    app.logger.info("Realoding succeeded")
+    return "Reload succeeded ready", 200
+
 
 def get_nb_partie():
     """
@@ -411,7 +450,6 @@ def get_nb_partie():
 
     return id
 
-
 Q = Queue()
 id = 0
 def start_up():
@@ -430,7 +468,6 @@ def start_up():
         raise DatabaseError("Connexion failed.")
 
     id = get_nb_partie()  # Retrieve maximum game ID
-    app.logger.info(id)
     id = id['MAX(partie_id)'] + 1
 
     app.logger.info(f"Nombre de partie dans la base : {id}")

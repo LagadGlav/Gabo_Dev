@@ -2,16 +2,18 @@ from flask import Flask, jsonify, request
 import logging
 import time
 import sys
+import os
 from webbrowser import Error
 
 
 sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion  # Exemple : Import de tes fonctions utilitaires
+from util import connect_to_database_interro, get_connexion, notify_service
 from exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configuration de Flask
 app = Flask(__name__)
 
+API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/reload_indexbyname")
 
 # Configure logging to capture INFO-level logs for debugging purposes
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -51,6 +53,7 @@ def send_to_database_j(id_joueur, nom):
         cursor.execute(query, data)  # Execute the query with the data
         connection.commit()  # Commit the transaction
         app.logger.info(f"Joueur inséré : ID={id_joueur}, Nom={nom}")  # Log the successful insertion
+        notify_service(API_AG_URL) # Notify Api-ag for realoding its indexbyname
     except Error as e:  # Handle MySQL errors
         connection.rollback()  # Rollback in case of error
         app.logger.error(f"Erreur MySQL : {str(e)}")  # Log the error

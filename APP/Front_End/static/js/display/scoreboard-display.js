@@ -127,10 +127,11 @@ function displayPlayers(players) {
             playerCard.innerHTML = `
             <h4 style="cursor: pointer;">${trophy} ${player.joueur_nom} (${player.elo})</h4>
             <div class="player-details hidden">
-                <p>Number of Games: ${player.nombre_partie}</p>
-                <p>Total Score: ${player.score_total}</p>
-                <p>Score Ratio: ${player.ratio_score}</p>
-                <p>Rank Ratio: ${player.ratio_rang}</p>
+                <h3>${player.joueur_nom} (${player.elo})</h3>
+                <p>Nombre de partie joué: ${player.nombre_partie}</p>
+                <p>Score total: ${player.score_total}</p>
+                <p>Score moyen par partie: ${player.ratio_score}</p>
+                <p>Meilleur que ${(1-player.ratio_rang)*100}% des joueurs en moyenne partie</p>
             </div>
         `;
         } else {
@@ -138,10 +139,11 @@ function displayPlayers(players) {
             playerCard.innerHTML = `
                 <h4 style="cursor: pointer;">${ranking} ${player.joueur_nom} (${player.elo})</h4>
                 <div class="player-details hidden">
-                    <p>Number of Games: ${player.nombre_partie}</p>
-                    <p>Total Score: ${player.score_total}</p>
-                    <p>Score Ratio: ${player.ratio_score}</p>
-                    <p>Rank Ratio: ${player.ratio_rang}</p>
+                <h3>${player.joueur_nom} (${player.elo})</h3>
+                <p>Nombre de partie joué: ${player.nombre_partie}</p>
+                <p>Score total: ${player.score_total}</p>
+                <p>Score moyen par partie: ${player.ratio_score}</p>
+                <p>Meilleur que ${(1-player.ratio_rang)*100}% des joueurs en moyenne partie</p>
                 </div>
             `;
         }

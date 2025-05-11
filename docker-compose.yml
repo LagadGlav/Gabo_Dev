@@ -90,6 +90,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./Backup/back_up:/Backup/back_up
+      - ./utils:/utils
     ports:
       - "8080:8080"
     networks:

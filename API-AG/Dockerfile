@@ -4,7 +4,7 @@ FROM python:3.9-slim
 # Répertoire de l'application
 WORKDIR /API-AG
 
-# Copier le fichier requirements (ajoutez-y toutes vos dépendances, y compris gunicorn)
+# Copier le fichier requirements
 COPY requirements.txt .
 
 # Installer les dépendances

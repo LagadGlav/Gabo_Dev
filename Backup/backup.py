@@ -1,9 +1,14 @@
 import os
 import time
 import subprocess
-import requests
 import datetime
 import logging
+import sys
+import mysql.connector
+
+sys.path.append("/utils")
+from util import connect_to_database_interro, get_connexion, notify_service
+from exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configure logging
 logging.basicConfig(
@@ -39,14 +44,6 @@ def restore_latest_backup(backup_path, host, port, user, password, database):
     restore_command = f"mysql --host={host} --port={port} --user={user} --password={password} {database} < {latest_backup_path}"
     subprocess.run(restore_command, shell=True)
     logging.info("Backup restoration completed.")
-
-def notify_service(url):
-    try:
-        logging.info(f"Notifying Flask service at {url}...")
-        response = requests.get(url)
-        logging.info(f"Notification sent! Flask responded: {response.status_code}")
-    except Exception as e:
-        logging.info(f"Failed to notify Flask service: {e}")
 
 def generate_backup(host, port, username, password, database, backup_path):
     # Créer le répertoire de sauvegarde s'il n'existe pas

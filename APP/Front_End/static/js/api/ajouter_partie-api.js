@@ -5,7 +5,6 @@ function fetchPlayerInfo() {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-
                 alert(data.error);
             } else {
                 list_player_info.push(data)
