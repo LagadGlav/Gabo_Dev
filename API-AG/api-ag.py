@@ -203,7 +203,7 @@ def get_all_players():
             connection.close()  # Ensure the connection is closed after use
 
 
-def calculate_elo(current_elo, opponent_elo, score_diff, result, k=12):
+def calculate_elo(current_elo, opponent_elo, score_diff, result, k=1):
     """
     Calculate the Elo rating variation based on the given parameters.
 
@@ -212,7 +212,7 @@ def calculate_elo(current_elo, opponent_elo, score_diff, result, k=12):
         opponent_elo (int): Opponent's Elo rating.
         score_diff (int): Difference in scores.
         result (float): Game result (1 for win, 0 for loss, 0.5 for draw).
-        k (int): Adjustment factor (default: 12).
+        k (int): Adjustment factor (default: 1).
 
     Returns:
         float: Elo rating variation.
@@ -227,7 +227,7 @@ def calculate_elo(current_elo, opponent_elo, score_diff, result, k=12):
         return var_elo
 
     # Elo adjustment based on score difference and result
-    var_elo = score_diff * (result - expected_result)
+    var_elo = k * score_diff * (result - expected_result)
     return var_elo
 
 
@@ -411,11 +411,14 @@ def get_nb_partie():
 
     return id
 
+
 Q = Queue()
+id = 0
 def start_up():
     """
     Initialize the application and set up the database connection.
     """
+    global id
     time.sleep(1)
 
     app.logger.info("Connecting to database...")
@@ -423,11 +426,11 @@ def start_up():
         connect_to_database_interro()  # Establish connection
         app.logger.info("Connected")
     except:
-        app.logger.info("Impossible to connect, restarting start_up phase")
-        start_up()
+        app.logger.info("Impossible to connect, start_up phase failed")
         raise DatabaseError("Connexion failed.")
 
     id = get_nb_partie()  # Retrieve maximum game ID
+    app.logger.info(id)
     id = id['MAX(partie_id)'] + 1
 
     app.logger.info(f"Nombre de partie dans la base : {id}")

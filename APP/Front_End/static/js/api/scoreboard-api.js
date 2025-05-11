@@ -1,20 +1,3 @@
-function fetchPlayerInfo() {
-    const playerId = document.getElementById('playerId').value;
-
-    fetch(`/api-ap/get_player_info?playerId=${playerId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                alert(data.error);
-            } else {
-                displayPlayerInfo(data);
-            }
-        })
-        .catch(error => {
-            console.error("Error during the request:", error);
-        });
-}
-
 // Define cache keys and Time-To-Live (TTL)
 const CACHE_KEY = 'allPlayers';
 const CACHE_TIMESTAMP_KEY = 'allPlayersTimestamp';

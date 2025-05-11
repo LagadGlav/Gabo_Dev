@@ -1,3 +1,6 @@
+let indexById = {};
+let indexByName = {};
+
 document.addEventListener('DOMContentLoaded', function() {
     const playerInput = document.getElementById('playerId');
 
@@ -9,9 +12,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-function displayPlayerInfo(player) {
-    // Get the container for player cards.
-    const playerInfoContainer = document.getElementById('playerInfoContainer');
+function displayPlayerInfo() {
+    // Get the player's search input value
+    const playerInput = document.getElementById('playerId').value.trim();
+
+    // Get the toggle buttons
+    const toggleIDBtn = document.getElementById('toggleID');
+    const toggleNameBtn = document.getElementById('toggleName');
+
+
+    let player;
+
+    // Determine whether to search by ID or name
+    if (toggleIDBtn.classList.contains('active')) {
+        player = indexById[playerInput]; // Using playerInput as key
+    } else if (toggleNameBtn.classList.contains('active')) {
+        player = indexByName[playerInput];
+    } else {
+        alert("Please select either ID or Name to search for the player.");
+        return;
+    }
+
+    // Ensure the player exists before displaying
+    if (!player) {
+        alert("Player not found, it seems you made a mistake");
+        return;
+    }
 
     // Create a new card element.
     const newCard = document.createElement('div');
@@ -21,10 +47,10 @@ function displayPlayerInfo(player) {
     newCard.innerHTML = `
         <button class="close-btn" onclick="closeCard(this)">&times;</button>
         <h3>${player.joueur_nom} (${player.elo})</h3>
-        <p>Number of Games: ${player.nombre_partie}</p>
-        <p>Total Score: ${player.score_total}</p>
-        <p>Score Ratio: ${player.ratio_score}</p>
-        <p>Rank Ratio: ${player.ratio_rang}</p>
+        <p>Nombre de partie joué: ${player.nombre_partie}</p>
+        <p>Score total: ${player.score_total}</p>
+        <p>Score moyen par partie: ${player.ratio_score}</p>
+        <p>Meilleur que ${(1-player.ratio_rang)*100}% des joueurs en moyenne partie</p>
     `;
 
     // Append the new card to the container.
@@ -57,6 +83,10 @@ function displayPlayers(players) {
 
     let ranking = 0;
     players.forEach(player => {
+
+        // Generate a dict that contains players but with their names as key
+        indexByName[player.joueur_nom] = player;
+        indexById[player.joueur_id] = player;
         ranking++;
 
         // Create a new card for each player
@@ -125,6 +155,8 @@ function displayPlayers(players) {
             details.classList.toggle('hidden');
         });
     });
+    console.log(indexById);
+    console.log(indexByName);
 }
 
 // On page load
