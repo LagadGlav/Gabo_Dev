@@ -5,30 +5,26 @@ import sys
 from webbrowser import Error
 from threading import Lock  # To ensure thread-safe operations
 
-import time  # For time-related operations (not explicitly used here)
+import time  # For time-related operations
 import mysql.connector  # MySQL library for database connection and operations
 import mysql.connector.pooling  # Pooling for optimized connections
-import math  # Math utilities (not explicitly used here)
+import math  # Math utilities
 
-
-import datetime  # Useful for date-related operations (not used in this code but available)
 import os, sys  # OS-level operations for file paths or environmental variables
 
 # Initialize threading lock for thread-safe operations
 lock = Lock()
 
-
 sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion  # Exemple : Import de tes fonctions utilitaires
+from util import connect_to_database_interro, get_connexion
 from exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configuration de Flask
 app = Flask(__name__)
 
-
 # Configure logging to capture INFO-level logs for debugging purposes
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-app.logger.setLevel(logging.INFO)  # Set logging level to INFO
+app.logger.setLevel(logging.INFO)  # Set the logging level to INFO
 app.logger.propagate = True  # Allow logs to propagate to parent logger
 
 # Global state
@@ -56,8 +52,14 @@ class Queue:
 
     def empty_queue(self):
         """
-        Processes all items in the queue and inserts them into the database.
-        Thread-safe operation using Lock to prevent race conditions.
+        Removes all elements from the queue and processes them. This method ensures thread-safe execution
+        by using a lock and sequentially processes the elements in the queue. Each element is logged
+        and then sent to the database. If the queue is empty, the method returns None.
+
+        :param self: The instance of the class containing the queue to be processed.
+        :return: Returns True if all elements in the queue are successfully processed, otherwise returns None.
+        :rtype: Bool or None
+        :raises Exception: Raises an exception in case of any MySQL error triggering during database operations.
         """
         with lock:  # Ensure thread-safe operations
             if self.queue:  # Check if the queue is not empty
@@ -69,7 +71,6 @@ class Queue:
                         send_to_database(p)  # Insert game session data into the database
                     except Error as e:  # Catch MySQL errors
                         raise f"Erreur MySQL : {str(e)}"  # Raise the error
-
             else:
                 return None  # If the queue is empty, return None
         return True  # Return True if successful
@@ -152,17 +153,33 @@ def send_to_database(p):
 @app.route('/api-ag/get_player_info')
 def get_player_info():
     """
-    Retrieve information about a player from the database using either the player's ID or the player's name.
+    Retrieve player information based on a given player ID or name.
 
-    Returns:
-        JSON: Player details if found, or an error message if not found.
+    This function handles requests to retrieve details of a player stored in the
+    database. The function identifies the player by their `playerId`, either
+    directly as an integer or by resolving their name from an indexing structure.
+    If the player exists in the database, their data is returned as a JSON object.
+    Otherwise, an error message is returned with a 404 status code.
+
+    :param flask.Request.args['playerId']: The unique identifier or name of the
+        player to search for.
+    :type flask.Request.args['playerId']: str
+
+    :raises ValueError: If the provided input is not convertible to an integer and
+        does not match any player name in the indexing structure.
+    :raises KeyError: If the player's name cannot be resolved in the
+        `indexbyname` dictionary.
+
+    :return: The data of the requested player in JSON format if they exist in the
+        database; otherwise returns an error message and a 404 status code.
+    :rtype: flask.Response
     """
     player = request.args.get('playerId') # Get the playerId/Name parameter from the request
     app.logger.info(f"Nouveau joueur dans la partie: {player}")
     
     try:
         player_id = int(player)
-    except ValueError as e:
+    except ValueError as e: # Handle a search by name
         app.logger.info("Searching by name in the indexbyname")
         player_id = indexbyname[player]
     except:
@@ -185,10 +202,17 @@ def get_player_info():
 indexbyname: dict = {}
 def get_all_players():
     """
-    Establish a hasmap of all players registered allowing to match Name and Id
+    Fetches all rows from the 'Joueurs' table and generates an index mapping player names
+    to their respective IDs. The main purpose is to handle searcing player by name.
+    Dictionary python is actually C-hard code, making passing throughout keys particularly fast.
+    This Dictionary allows to SELECT in the db without using WHERE that could slow th request.
 
-    Returns:
-        list: List of player rows if found, otherwise an empty list.
+    This function retrieves all player records from the database, populates an in-memory
+    index table based on player names and their IDs, and returns the list of all rows fetched.
+
+    :raises Error: If an error occurs during database operations.
+    :returns: List of tuples where each tuple contains player ID and player name.
+    :rtype: list
     """
     app.logger.info(f"Generating new index table...")
     connection = None
@@ -250,13 +274,19 @@ def calculate_elo(current_elo, opponent_elo, score_diff, result, k=1):
 
 def get_var_elo(table):
     """
-    Compute Elo variations for all players in a given table.
+    Calculates the variations in Elo ratings for a list of players based on their
+    current ratings and game results. The function iterates through each pair of
+    players in the game, compares their scores, and updates their Elo variations
+    accordingly.
 
-    Args:
-        table (list): Table containing player IDs, scores, and Elo ratings.
-
-    Returns:
-        list: List of Elo variations for each player.
+    :param table: A list where:
+                  - table[2] represents a list of Elo ratings for each player.
+                  - table[1] represents a list of scores for each player.
+    :type table: list
+    :return: A list representing the calculated Elo variations for each player.
+             Each element corresponds to a player's total variation in Elo due to
+             all game results.
+    :rtype: list
     """
     elo = table[2]
     var_elo = [0] * len(elo)  # Initialize Elo variations to zero
@@ -275,13 +305,23 @@ def get_var_elo(table):
 
 def insertion(table, id_temp):
     """
-    Insert players and game data into a queue for processing.
+    Insert player data into a queue based on game results and Elo rating calculations.
 
-    Args:
-        :param table: Table containing player IDs, scores, and Elo ratings.
-        :param id_temp: Id of the game
-    Returns:
-        bool: True if insertion is successful, otherwise raises an error.
+    This function is designed to process a table of game results and insert the
+    processed data for each player into a queue. The function calculates the Elo
+    rating variations for each player, organizes the data using a specific game
+    structure, and ensures thread-safe queue insertion. It returns a confirmation
+    status upon successful execution.
+
+    :param table: Two-dimensional list containing player IDs and scores,
+        where `table[0]` is the list of player IDs and `table[1]` is the list
+        of corresponding scores.
+    :type table: list
+    :param id_temp: Identifier for the game instance being processed.
+    :type id_temp: int
+    :return: Boolean indicating whether the insertion process was successul.
+    :rtype: bool
+    :raises Error: If an issue occurs during the queue insertion process.
     """
     var_elo = get_var_elo(table)  # Compute Elo variations
 
@@ -304,38 +344,48 @@ def insertion(table, id_temp):
 
 def sort_table(table):
     """
-    Sort the player table based on scores using insertion sort.
+    Sorts a given table of data using insertion sort. The input ``table`` is expected
+    to contain three rows: player IDs, their scores, and their Elo ratings. The function
+    sorts the rows in ascending order with respect to the scores.
+    The purpose is to get the rank of each player without having to transport this specific
+    information from the front end.
 
-    Args:
-        table (list): Table containing player data.
+    :param table: A 2D list where:
+                  - table[0]: List of player IDs.
+                  - table[1]: List of player scores to be used as a sorting key.
+                  - table[2]: List of player Elo ratings.
+    :type table: list[list[Any]]
+    :return: The sorted table, ordered by ascending player scores.
+    :rtype: list[list[Any]]
+    :raises TypeError: If the input table is not a list or its subelements are not lists.
+    :raises ValueError: If player scores (table[1]) contain non-integer values.
 
-    Returns:
-        list: Sorted table.
-
-    Raises:
-        Error: If sorting fails.
     """
     n = len(table[1])
-    table[1] = [int(score) for score in table[1]]  # Convert scores to integers
+
+    try:
+        table[1] = [int(score) for score in table[1]]  # Convert scores to integers
+    except ValueError as e:
+        return f"Error scores aren't integers : {e}"
 
     try:
         for i in range(1, n):
-            cle = table[1][i]  # Current score
-            cle_valeur1 = table[0][i]  # Associated player ID
-            cle_valeur2 = table[2][i]  # Associated Elo rating
+            key = table[1][i]  # Current score
+            key_value1 = table[0][i]  # Associated player ID
+            key_value2 = table[2][i]  # Associated Elo rating
 
             j = i - 1
             # Perform insertion sort
-            while j >= 0 and table[1][j] > cle:
-                app.logger.info(f"Tri : {table[1][j]} > {cle}")
+            while j >= 0 and table[1][j] > key:
+                app.logger.info(f"Tri : {table[1][j]} > {key}")
                 table[1][j + 1] = table[1][j]
                 table[0][j + 1] = table[0][j]
                 table[2][j + 1] = table[2][j]
                 j -= 1
 
-            table[1][j + 1] = cle
-            table[0][j + 1] = cle_valeur1
-            table[2][j + 1] = cle_valeur2
+            table[1][j + 1] = key
+            table[0][j + 1] = key_value1
+            table[2][j + 1] = key_value2
 
         return table
     except Error as e:
@@ -345,10 +395,19 @@ def sort_table(table):
 @app.route('/api-ag/save_table', methods=['POST'])
 def receive_table():
     """
-    Process and save a player table received via POST request.
+    Receives a table corresponding to the game's information and scores
+    through a POST request, processes it by sorting and storing in
+    a queue, and clears the queue afterwards. Ensures thread-safe handling of a global ID.
 
-    Returns:
-        JSON: Success or error message depending on the result.
+    This endpoint is part of the API to handle game data storage. It expects a JSON
+    object in the request body with a key `"table"` containing a list. The table is
+    processed, stored, and an appropriate response is generated based on the success
+    of the operation.
+
+    :raises KeyError: If the 'table' key is missing in the input data
+    :raises TypeError: If the value corresponding to 'table' is not a list
+    :param request: The HTTP request object containing the JSON data
+    :returns: A JSON response with a success or error message
     """
     global id
     id_temp = -1
@@ -381,34 +440,41 @@ def receive_table():
 @app.route('/ready', methods=['GET'])
 def notify_ready():
     """
-    Notified that the app is ready and service start up can process.
+    Sets the application status to ready and initializes startup procedures.
 
-    Returns:
-        str: Success message indicating readiness.
+    This endpoint is part of the app's readiness lifecycle. When accessed,
+    it performs a series of tasks to confirm that the application is ready
+    for operation, such as flagging the readiness status, logging progress,
+    executing startup routines, and initializing required application data.
+
+    :raises Exception: if the startup process fails during execution
+    :return: A tuple containing a string message indicating readiness and an
+             HTTP status code 200
+    :rtype: tuple[str, int]
     """
     global is_ready
     is_ready = True
+    app.logger.info("Notification from Backup service receiveid : DataBase ready.")
 
-    app.logger.info("Notification reçue : Backup terminé et base de données opérationnelle.")
-
-    app.logger.info("Startup...")
-
+    app.logger.info("Service starting...")
     try:
         start_up()
-    except:
-        app.logger.info("Start up failed")
+    except StartUpError as e:
+        app.logger.error(f"Error du starting : {e}")
+        return jsonify({"message": "Start up failed"}), 500
 
-    get_all_players()  # Load player data from the database
-    app.logger.info("Start up succeeded : App is ready")
-    return "App is ready", 200
+    app.logger.info("Service started. Ready to serve requests.")
+    return jsonify({"message": "API-AP is ready"}), 200
 
 @app.route('/reload_indexbyname', methods=['GET'])
 def reload_mapping():
     """
-    Notified that the app is ready and service start up can process.
+    Handles the reloading of player name mapping when a new player is added to
+    the database. Logs the results of the operation to indicate success or failure.
 
-    Returns:
-        str: Success message indicating readiness.
+    :return: A tuple containing a success message as a string and the HTTP status
+             code 200 if the operation succeeds, or None if the operation fails.
+    :rtype: tuple or None
     """
     app.logger.info("Notification reçue : Nouveau joueur ajouté dans la base de données.")
 
@@ -424,19 +490,14 @@ def reload_mapping():
     return "Reload succeeded ready", 200
 
 
-def get_nb_partie():
+def get_nb_game_in_db():
     """
     Retrieve the maximum game ID from the database.
 
     Returns:
         int: Maximum game ID if found, otherwise returns 1.
     """
-    connection = mysql.connector.connect(
-        host="data_base",
-        user="root",
-        password="Gabo",
-        database="Gabo_base"
-    )
+    connection = get_connexion()
     cursor = connection.cursor(dictionary=True)
     cursor.execute("SELECT DISTINCT MAX(partie_id) FROM Partie")
     id = cursor.fetchone()
@@ -454,7 +515,12 @@ Q = Queue()
 id = 0
 def start_up():
     """
-    Initialize the application and set up the database connection.
+    Starts the application by setting up necessary database connections and initializing
+    global variables. The function handles the database connection phase and initializes
+    the game ID by determining the highest existing ID in the database.
+
+    :raises DatabaseError: If unable to establish a connection to the database.
+    :return: True if function execution is successful.
     """
     global id
     time.sleep(1)
@@ -467,10 +533,11 @@ def start_up():
         app.logger.info("Impossible to connect, start_up phase failed")
         raise DatabaseError("Connexion failed.")
 
-    id = get_nb_partie()  # Retrieve maximum game ID
+    id = get_nb_game_in_db()  # Retrieve maximum game ID
     id = id['MAX(partie_id)'] + 1
 
     app.logger.info(f"Nombre de partie dans la base : {id}")
+    return True
 
 
 # Entry point for the application

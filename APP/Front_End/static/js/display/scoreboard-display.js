@@ -95,8 +95,8 @@ function displayPlayers(players) {
 
         // Default styling values
         let trophy = "";
-        let backgroundColor = "linear-gradient(135deg, #007bff, #0056b3)"; // Default blue
-        let cardScale = 1; // Default scale
+        let backgroundColor = "linear-gradient(135deg, #007bff, #0056b3)";
+        let cardScale = 1;
 
         // Customization for the top 3 players using Bootstrap-inspired colors with vendor prefixes
         if (ranking === 1) {

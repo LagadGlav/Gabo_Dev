@@ -17,6 +17,22 @@ logging.basicConfig(
 )
 
 def wait_for_database(host, port, user, password):
+    """
+    Waits for a database to become ready by repeatedly sending a ping request until it succeeds.
+    This function ensures that the database is ready to accept connections before proceeding
+    with further operations. It will continue to wait and check the status in fixed intervals
+    until the database responds positively.
+
+    :param host: Database host to connect to
+    :type host: str
+    :param port: Port where the database is accessible
+    :type port: int
+    :param user: Username for database authentication
+    :type user: str
+    :param password: Password for the specified user
+    :type password: str
+    :return: None
+    """
     while True:
         try:
             # Command to check database readiness
@@ -31,6 +47,30 @@ def wait_for_database(host, port, user, password):
             time.sleep(5)
 
 def restore_latest_backup(backup_path, host, port, user, password, database):
+    """
+    Restores the latest SQL backup from a specified directory into a MySQL database.
+
+    This function locates the most recently modified `.sql` file in the given backup
+    directory and uses the MySQL command-line utility to restore the database from
+    that backup. If no `.sql` files exist in the directory, the restoration process
+    is skipped and an informational log message is generated. The function assumes
+    that the MySQL command-line tool is available and properly configured on the
+    system.
+
+    :param backup_path: The directory path where the `.sql` backup files are stored.
+    :type backup_path: str
+    :param host: The hostname or IP address of the MySQL server.
+    :type host: str
+    :param port: The port number of the MySQL server.
+    :type port: int
+    :param user: The username used to authenticate with the MySQL server.
+    :type user: str
+    :param password: The password corresponding to the MySQL user.
+    :type password: str
+    :param database: The name of the target database to restore the backup into.
+    :type database: str
+    :return: None
+    """
     # Find the latest backup
     backup_files = [f for f in os.listdir(backup_path) if f.endswith(".sql")]
     if not backup_files:
@@ -46,6 +86,27 @@ def restore_latest_backup(backup_path, host, port, user, password, database):
     logging.info("Backup restoration completed.")
 
 def generate_backup(host, port, username, password, database, backup_path):
+    """
+    Generates a backup for a MySQL database using the `mysqldump` command-line
+    utility. This function creates a timestamped `.sql` backup file in the
+    specified backup directory. If the directory does not exist, it is created
+    automatically.
+
+    :param host: Hostname or IP address of the MySQL server.
+    :type host: str
+    :param port: Port number the MySQL server is listening on.
+    :type port: int
+    :param username: Username to authenticate with the MySQL server.
+    :type username: str
+    :param password: Password to authenticate the `username` with the MySQL server.
+    :type password: str
+    :param database: Name of the database to back up.
+    :type database: str
+    :param backup_path: Path to the directory where the backup file will be saved.
+    :type backup_path: str
+    :return: A boolean indicating whether the backup was successful.
+    :rtype: bool or None
+    """
     # Créer le répertoire de sauvegarde s'il n'existe pas
     if not os.path.exists(backup_path):
         os.makedirs(backup_path)
