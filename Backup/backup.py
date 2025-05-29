@@ -148,6 +148,7 @@ if __name__ == "__main__":
     FLASK_URL = os.getenv("FLASK_APP_URL", "http://app:8000/ready")
     API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010/ready")
     API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/ready")
+    API_AG_URL_INDEX = os.getenv("API_AG_URL", "http://api-add_game:8020/reload_indexbyname")
 
 
     # Wait for database readiness
@@ -168,7 +169,8 @@ if __name__ == "__main__":
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)
         if backup_status == True:
-            time.sleep(60)
+            time.sleep(30)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
-
+        time.sleep(10)
+        notify_service(API_AG_URL_INDEX)

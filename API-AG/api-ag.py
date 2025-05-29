@@ -466,6 +466,18 @@ def notify_ready():
     app.logger.info("Service started. Ready to serve requests.")
     return jsonify({"message": "API-AP is ready"}), 200
 
+@app.route('/patch_mapping_index', methods=['PATCH'])
+def patch_mapping_index():
+
+    data = request.get_json()
+    if not data or "id" not  in data or "name" not in data:
+        app.logger.error(f"Error patch mapping index: {data}")
+        return jsonify({"error": "Invalid input: 'id' and 'name' keys are missing"}), 400
+
+    indexbyname[f"{data['name']}"] = data['id']
+    app.logger.info(f"New index table patched {indexbyname}")
+    return jsonify({"message": "Mapping updated"}), 200
+
 @app.route('/reload_indexbyname', methods=['GET'])
 def reload_mapping():
     """
@@ -532,6 +544,9 @@ def start_up():
     except:
         app.logger.info("Impossible to connect, start_up phase failed")
         raise DatabaseError("Connexion failed.")
+
+    get_all_players()
+    app.logger.info(f"Mapping id:name Index table {indexbyname}")
 
     id = get_nb_game_in_db()  # Retrieve maximum game ID
     id = id['MAX(partie_id)'] + 1

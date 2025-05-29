@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request
 import logging
+import requests
 import time
 import sys
 import os
@@ -10,10 +11,12 @@ sys.path.append("/utils")
 from util import connect_to_database_interro, get_connexion, notify_service
 from exceptions import DatabaseError, NetworkError, StartUpError
 
+API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010")
+
 # Configuration de Flask
 app = Flask(__name__)
 
-API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/reload_indexbyname")
+API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/patch_mapping_index")
 
 # Configure logging to capture INFO-level logs for debugging purposes
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -71,6 +74,20 @@ def send_to_database_j(player_id: str, player_name: str) -> bool:
         if connection:
             connection.close()
 
+def patch_mapping_index(id, name):
+
+    PATCH_URL = API_AG_URL
+
+    json_payload = {'id': id, 'name': name}
+
+    try:
+        app.logger.info(f"Sending patch for mapping index for player {id} : {name}")
+        response = requests.patch(PATCH_URL, json=json_payload)
+        app.logger.info(f"Response from API-AG patch mapping index : {response.status_code}")
+        return True
+    except NetworkError as e:
+        app.logger.error(f"Network error: {e}")
+        return jsonify({'error': str(e)}), 400
 
 @app.route('/api-ap/save_player', methods=['POST'])
 def save_player():
@@ -104,6 +121,11 @@ def save_player():
 
         # Try saving to the database
         send_to_database_j(player_id, player_name)
+
+        try:
+            patch_mapping_index(player_id, player_name)
+        except NetworkError as e:
+            return jsonify({'error': str(e)}), 400
 
         return jsonify({
             'message': 'Player profile saved successfully',

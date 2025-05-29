@@ -82,9 +82,6 @@ services:
       - api-add_game
 
   backup:
-    environment:
-      FLASK_APP_URL: "http://app:8000/ready"
-      API_AP_URL: "http://api-add_player:8010/ready"
     build:
       context: ./Backup
       dockerfile: Dockerfile
