@@ -3,6 +3,7 @@ import time
 import mysql.connector
 import sys
 import requests
+import os
 sys.path.append("/utils")
 from exceptions import DatabaseError, NetworkError, StartUpError
 # Configure logging
@@ -13,6 +14,12 @@ logging.basicConfig(
 
 sys.path.append("/utils")
 from exceptions import DatabaseError, NetworkError, StartUpError
+
+DB_HOST = os.getenv("DB_HOST", "data_base")
+DB_PORT = int(os.getenv("DB_PORT", 3306))
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
+DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
 
 def get_connexion():
     """
@@ -25,10 +32,10 @@ def get_connexion():
     """
     try:
         connection = mysql.connector.connect(
-            host="data_base",  # Host name
-            user="root",  # Username
-            password="Gabo",  # Password
-            database="Gabo_base"  # Database name
+            host=DB_HOST,  # Host name
+            user=DB_USER,  # Username
+            password=DB_PASSWORD,  # Password
+            database=DB_NAME  # Database name
         )
         return connection
     except mysql.connector.Error as e:

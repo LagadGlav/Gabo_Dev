@@ -73,7 +73,7 @@ services:
       context: ./nginx
       dockerfile: Dockerfile
     ports:
-      - "80:80"  # Le proxy Nginx sera accessible depuis l'extérieur sur le port 80
+      - "80:80"
     networks:
       - app_network
     depends_on:
