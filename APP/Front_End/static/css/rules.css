@@ -1,0 +1,10 @@
+.container {
+    width: 100%;
+}
+
+.section-title {
+    font-size: 2em;
+    text-align: center;
+    margin-bottom: 15px;
+    font-weight: 600;
+}

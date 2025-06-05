@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}Gabo{% endblock %}
+
+{% block content %}
+
+<div>
+    <label class="section-title">Rules</label>
+    <div class="container">
+        <button class="ask_rules" type="button" id="ask_rules_button">Show Rules in English</button>
+        <div id="rules">
+            <!-- Rules will be dynamically inserted here -->
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/rules.css') }}">
+<script src="{{ url_for('static', filename='js/display/rules-display.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api/rules-api.js') }}"></script>
+
+{% endblock %}

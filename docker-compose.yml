@@ -44,6 +44,19 @@ services:
     depends_on:
       - data_base
 
+  api-rules:
+    build:
+      context: ./API-RULES
+      dockerfile: Dockerfile
+    volumes:
+      - ./API-RULES:/API-RULES
+      - ./utils:/utils
+      - ./kaggle.json:/root/.config/kaggle/kaggle.json:ro
+    ports:
+      - "8030"
+    networks:
+      - app_network
+
   data_base:
     build:
       context: ./Data_Base

@@ -13,7 +13,7 @@ function fetchPlayerInfo() {
             }
         })
         .catch(error => {
-            console.error("Erreur lors de la requête :", error);
+            console.error("Error during request :", error);
         });
 }
 

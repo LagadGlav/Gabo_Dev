@@ -19,3 +19,6 @@ def scoreboard():
 def ajouter_joueur():
     return render_template('ajouter_joueur.html')
 
+@main_bp.route('/rules')
+def rules():
+    return render_template('rules.html')

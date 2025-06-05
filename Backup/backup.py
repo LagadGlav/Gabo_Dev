@@ -157,20 +157,20 @@ if __name__ == "__main__":
     # Restore the latest backup
     restore_latest_backup(BACKUP_PATH, DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME)
 
-    # Notify the Flask service
+    # Notify the Flask service, ready to run
     notify_service(FLASK_URL)
 
-    # Notify the API-AP service
+    # Notify the API-AP service, ready to run
     notify_service(API_AP_URL)
 
-    # Notify the API-AG service
+    # Notify the API-AG service, ready to run
     notify_service(API_AG_URL)
 
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)
         if backup_status:
-            time.sleep(3600)
+            time.sleep(36)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
-        time.sleep(3600)
+        time.sleep(36)
         notify_service(API_AG_URL_INDEX)

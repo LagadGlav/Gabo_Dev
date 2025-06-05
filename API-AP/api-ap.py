@@ -222,8 +222,6 @@ def get_all_players():
         if no records are found.
     :rtype: List[dict]
     """
-    limit = 100
-    offset = 100
     connection = None
     cursor = None
     try:
@@ -231,16 +229,14 @@ def get_all_players():
         cursor = connection.cursor(dictionary=True)
 
         query = """
-                SELECT joueur_id, joueur_nom, elo
+                SELECT *
                 FROM Joueurs
                 ORDER BY elo DESC
-                    LIMIT %s \
-                OFFSET %s \
                 """
-        cursor.execute(query, (limit, offset))
+        cursor.execute(query)
         players = cursor.fetchall()
 
-        return players if players else []
+        return players
 
     except Error as e:
         app.logger.error(f"Database error: {e}")

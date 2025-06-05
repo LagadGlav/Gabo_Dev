@@ -183,9 +183,9 @@ def get_player_info():
         app.logger.info("Searching by name in the indexbyname")
         player_id = indexbyname[player]
     except:
-        return jsonify({'error': 'Joueur non trouvé'}), 404  # Return an error if not found
+        return jsonify({'error': 'Player maybe not load, please try searching by id'}), 400  # Return an error if not found
 
-    app.logger.info(f"Recherche Joueur : {player_id}")
+    app.logger.info(f"Searching Joueur : {player_id}")
 
     connection = get_connexion()
     cursor = connection.cursor(dictionary=True)
