@@ -178,8 +178,8 @@ if __name__ == "__main__":
     while True:
         backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH, backup_status)
         if backup_status is not None:
-            time.sleep(36)
+            time.sleep(3600)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
-        time.sleep(36)
+        time.sleep(3600)
         notify_service(API_AG_URL_INDEX)

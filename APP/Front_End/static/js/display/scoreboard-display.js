@@ -25,6 +25,7 @@ function displayPlayerInfo() {
 
     // Determine whether to search by ID or name
     if (toggleIDBtn.classList.contains('active')) {
+        id = playerInput
         player = indexById[playerInput]; // Using playerInput as key
     } else if (toggleNameBtn.classList.contains('active')) {
         player = indexByName[playerInput];
@@ -50,7 +51,8 @@ function displayPlayerInfo() {
         <p>Number of games played: ${player.nombre_partie}</p>
         <p>Total score: ${player.score_total}</p>
         <p>Average score per game: ${player.ratio_score}</p>
-        <p>Better ${(1-player.ratio_rang)*100}% of players in game</p>
+        <p>Better ${Number((1-player.ratio_rang)*100)}% of players in game</p>
+        <p>Player_id: ${player.joueur_id}</p>
     `;
 
     // Append the new card to the container.

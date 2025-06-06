@@ -51,7 +51,7 @@ services:
     volumes:
       - ./API-RULES:/API-RULES
       - ./utils:/utils
-      - ./kaggle.json:/root/.config/kaggle/kaggle.json:ro
+      - ./kaggle/kaggle.json:/root/.config/kaggle/kaggle.json:ro
     ports:
       - "8030"
     networks:
