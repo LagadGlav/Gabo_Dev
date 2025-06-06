@@ -1,0 +1,89 @@
+name: Deploy to GKE Autopilot
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v0.2.0
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: gabo-462023 
+        export_default_credentials: true
+
+    - name: Install gke-gcloud-auth-plugin
+      run: |
+        gcloud components install gke-gcloud-auth-plugin
+        gcloud components update
+
+    - name: Authenticate Docker to Docker Hub
+      run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    - name: Build and Push Images
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      run: |
+        # Build and push gabo-app
+        docker build -t "${DOCKER_USERNAME}/gabo-app:latest" ./APP
+        docker push "${DOCKER_USERNAME}/gabo-app:latest"
+
+        # Build and push gabo-api-add_game
+        docker build -t "${DOCKER_USERNAME}/gabo-api-add_game:latest" ./API-AG
+        docker push "${DOCKER_USERNAME}/gabo-api-add_game:latest"
+
+        # Build and push gabo-api-add_player
+        docker build -t "${DOCKER_USERNAME}/gabo-api-add_player:latest" ./API-AP
+        docker push "${DOCKER_USERNAME}/gabo-api-add_player:latest"
+
+        # Build and push gabo-nginx
+        docker build -t "${DOCKER_USERNAME}/gabo-nginx:latest" ./nginx
+        docker push "${DOCKER_USERNAME}/gabo-nginx:latest"
+
+        # Build and push gabo-database
+        docker build -t "${DOCKER_USERNAME}/gabo-database:latest" ./Data_Base
+        docker push "${DOCKER_USERNAME}/gabo-database:latest"
+
+        # Build and push gabo-backup
+        docker build -t "${DOCKER_USERNAME}/gabo-backup:latest" ./Backup
+        docker push "${DOCKER_USERNAME}/gabo-backup:latest"
+
+        # Build and push gabo-api-rules
+        docker build -t "${DOCKER_USERNAME}/gabo-api-rules:latest" ./API-RULES
+        docker push "${DOCKER_USERNAME}/gabo-api-rules:latest"
+
+    - name: Pull MySQL image
+      run: docker pull mysql:5.7
+
+    - name: Configure kubeconfig
+      run: |
+        mkdir -p /home/runner/.kube
+        echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > /home/runner/.kube/config
+        gcloud container clusters get-credentials clusteras --zone us-central1 --project gabo-462023
+        kubectl config use-context gke_projectas-462023_us-central1_clusteras
+
+    - name: Deploy to GKE
+      run: |
+        kubectl apply -f ./Gabo_Dev/k3s/API-AG-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/API-AG-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/API-AP-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/API-AP-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/API-RULES-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/API-RULES-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/APP-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/APP-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/backup-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/backup-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/database-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/database-service.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/nginx-deployment.yaml
+        kubectl apply -f ./Gabo_Dev/k3s/nginx-service.yaml
+      env:
+        KUBECONFIG: /home/runner/.kube/config

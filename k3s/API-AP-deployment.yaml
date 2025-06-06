@@ -1,0 +1,41 @@
+# Deployment for the "api-add-player" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-add-player
+  labels:
+    app: api-add-player
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-add-player
+  template:
+    metadata:
+      labels:
+        app: api-add-player
+    spec:
+      containers:
+      - name: api-add-player
+        image: lagadglav/api-add-player:latest
+        ports:
+          - containerPort: 8010
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: api-ap-volume
+            mountPath: /API-AP
+          - name: utils-volume
+            mountPath: /utils
+      volumes:
+        - name: api-ap-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/API-AP
+        - name: utils-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/utils

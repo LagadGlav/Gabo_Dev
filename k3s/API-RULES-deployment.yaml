@@ -1,0 +1,47 @@
+# Deployment for the "api-rules" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-rules
+  labels:
+    app: api-rules
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-rules
+  template:
+    metadata:
+      labels:
+        app: api-rules
+    spec:
+      containers:
+      - name: api-rules
+        image: lagadglav/api-rules:latest
+        ports:
+          - containerPort: 8030
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: api-rules-volume
+            mountPath: /API-RULES
+          - name: utils-volume
+            mountPath: /utils
+          - name: kaggle-config
+            mountPath: /root/.config/kaggle
+            readOnly: true
+      volumes:
+        - name: api-rules-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/API-RULES
+        - name: utils-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/utils
+        - name: kaggle-config
+          hostPath:
+            path: /home/runner/Gabo_Dev/kaggle/kaggle.json

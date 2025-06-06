@@ -1,0 +1,41 @@
+# Deployment for the "backup" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backup
+  labels:
+    app: backup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backup
+  template:
+    metadata:
+      labels:
+        app: backup
+    spec:
+      containers:
+      - name: backup
+        image: lagadglav/backup:latest  # Replace with your actual backup image
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: backup-volume
+            mountPath: /Backup/back_up
+          - name: utils-volume
+            mountPath: /utils
+      volumes:
+        - name: backup-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/Backup/back_up
+        - name: utils-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/utils

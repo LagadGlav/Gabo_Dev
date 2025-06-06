@@ -1,0 +1,48 @@
+# Deployment for the "app" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app
+  labels:
+    app: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+      - name: app
+        env:
+          - name: API_AP_URL
+            value: "http://api-add-player:8010/ready"
+        ports:
+          - containerPort: 8000
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: front-end-static
+            mountPath: /APP/Front_End/static
+          - name: front-end-templates
+            mountPath: /APP/Front_End/templates
+          - name: utils-volume
+            mountPath: /utils
+      volumes:
+        - name: front-end-static
+          hostPath:
+            path: /home/runner/Gabo_Dev/APP/Front_End/static
+        - name: front-end-templates
+          hostPath:
+            path: /home/runner/Gabo_Dev/APP/Front_End/templates
+        - name: utils-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/utils

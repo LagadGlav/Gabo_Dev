@@ -1,0 +1,41 @@
+# Deployment for the "api-add-game" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-add-game
+  labels:
+    app: api-add-game
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-add-game
+  template:
+    metadata:
+      labels:
+        app: api-add-game
+    spec:
+      containers:
+      - name: api-add-game
+        image: lagadglav/lagadglav/api-add-game:latest
+        ports:
+          - containerPort: 8020
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        volumeMounts:
+          - name: api-ag-volume
+            mountPath: /API-AG
+          - name: utils-volume
+            mountPath: /utils
+      volumes:
+        - name: api-ag-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/API-AG
+        - name: utils-volume
+          hostPath:
+            path: /home/runner/Gabo_Dev/utils

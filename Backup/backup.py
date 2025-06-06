@@ -85,7 +85,7 @@ def restore_latest_backup(backup_path, host, port, user, password, database):
     subprocess.run(restore_command, shell=True)
     logging.info("Backup restoration completed.")
 
-def generate_backup(host, port, username, password, database, backup_path):
+def generate_backup(host, port, username, password, database, backup_path, last_backup):
     """
     Generates a backup for a MySQL database using the `mysqldump` command-line
     utility. This function creates a timestamped `.sql` backup file in the
@@ -107,12 +107,12 @@ def generate_backup(host, port, username, password, database, backup_path):
     :return: A boolean indicating whether the backup was successful.
     :rtype: bool or None
     """
-    # Créer le répertoire de sauvegarde s'il n'existe pas
+    # Create a suve if it doesn't exist
     if not os.path.exists(backup_path):
         os.makedirs(backup_path)
         logging.info(f"Backup directory '{backup_path}' created.")
 
-    # Nom du fichier de sauvegarde basé sur la date et l'heure actuelles
+    # Name of the backup from date and time
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     backup_file = os.path.join(backup_path, f"{database}_backup_{timestamp}.sql")
 
@@ -136,7 +136,15 @@ def generate_backup(host, port, username, password, database, backup_path):
         logging.info(f"Error during backup: {e}")
         return None
 
-    return True
+    if last_backup is not None:
+        if os.path.exists(last_backup):
+            try:
+                os.remove(last_backup)
+                logging.info(f"{last_backup} removed")
+            except OSError as e:
+                logging.info(f"Warning {last_backup} has not been removed")
+
+    return backup_file
 
 if __name__ == "__main__":
     DB_HOST = os.getenv("DB_HOST", "data_base")
@@ -166,9 +174,10 @@ if __name__ == "__main__":
     # Notify the API-AG service, ready to run
     notify_service(API_AG_URL)
 
+    backup_status = None
     while True:
-        backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH)
-        if backup_status:
+        backup_status = generate_backup(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, BACKUP_PATH, backup_status)
+        if backup_status is not None:
             time.sleep(36)
         else:
             wait_for_database(DB_HOST, DB_PORT, DB_USER, DB_PASSWORD)
