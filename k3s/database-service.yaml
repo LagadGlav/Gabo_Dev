@@ -13,8 +13,3 @@ spec:
       port: 3306
       targetPort: 3306
   type: ClusterIP
-
-  volumes:
-    - name: mysql-storage
-      persistentVolumeClaim:
-        claimName: mysql-pvc
