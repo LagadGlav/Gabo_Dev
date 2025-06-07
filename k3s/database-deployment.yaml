@@ -36,9 +36,9 @@ spec:
               memory: "512Mi"
               cpu: "500m"
           volumeMounts:
-            - name: mysql-data
+            - name: mysql-volume
               mountPath: /var/lib/mysql
       volumes:
-        - name: mysql-data
+        - name: mysql-volume
           persistentVolumeClaim:
             claimName: mysql-pvc

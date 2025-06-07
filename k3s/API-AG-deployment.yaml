@@ -33,7 +33,7 @@ spec:
           - name: utils-volume
             mountPath: /utils
       volumes:
-        - name: api-ag-data
+        - name: api-ag-volume
           emptyDir: {}
-        - name: utils-data
+        - name: utils-volume
           emptyDir: {}

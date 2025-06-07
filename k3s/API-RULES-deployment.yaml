@@ -36,9 +36,9 @@ spec:
             mountPath: /root/.config/kaggle
             readOnly: true
       volumes:
-        - name: api-rules-data
+        - name: api-rules-volume
           emptyDir: {}
-        - name: utils-data
+        - name: utils-volume
           emptyDir: {}
-        - name: kaggle-config-data
+        - name: kaggle-config-volume
           emptyDir: {}
