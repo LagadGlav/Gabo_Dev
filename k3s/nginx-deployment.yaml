@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: lagadglav/nginx:latest
+        image: lagadglav/Gabo-nginx:latest
         ports:
           - containerPort: 80
         resources:

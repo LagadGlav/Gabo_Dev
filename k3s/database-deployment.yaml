@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: data-base
-          image: lagadglav/data-base:latest  # Doit contenir init.sql dans /docker-entrypoint-initdb.d/
+          image: lagadglav/Gabo-data-base:latest  # Doit contenir init.sql dans /docker-entrypoint-initdb.d/
           env:
             - name: DB_HOST
               value: "data-base"
