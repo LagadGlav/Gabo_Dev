@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: backup
-        image: lagadglav/Gabo-backup:latest  # Replace with your actual backup image
+        image: lagadglav/Gabo-backup:latest
         ports:
           - containerPort: 8080
         resources:
