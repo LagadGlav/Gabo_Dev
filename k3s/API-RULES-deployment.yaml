@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: api-rules
-        image: lagadglav/Gabo-api-rules:latest
+        image: lagadglav/gabo-api-rules:latest
         ports:
           - containerPort: 8030
         resources:

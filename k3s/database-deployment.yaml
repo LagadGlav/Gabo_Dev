@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: data-base
-          image: lagadglav/Gabo-database:latest
+          image: lagadglav/gabo-database:latest
           env:
             - name: DB_HOST
               value: "data-base"
