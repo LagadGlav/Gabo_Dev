@@ -15,35 +15,30 @@ spec:
         app: data-base
     spec:
       containers:
-      - name: data-base
-        image: lagadglav/data-base:latest  # Replace with a MySQL image or your custom image
-        env:
-          - name: DB_HOST
-            value: "data-base"
-          - name: DB_DATABASE
-            value: "Gabo_base"
-          - name: DB_USER
-            value: "root"
-          - name: DB_PASSWORD
-            value: "Gabo"
-        ports:
-          - containerPort: 3306
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        volumeMounts:
-          - name: init-sql
-            mountPath: /docker-entrypoint-initdb.d
-          - name: mysql-data
-            mountPath: /var/lib/mysql
+        - name: data-base
+          image: lagadglav/data-base:latest  # Doit contenir init.sql dans /docker-entrypoint-initdb.d/
+          env:
+            - name: DB_HOST
+              value: "data-base"
+            - name: DB_DATABASE
+              value: "Gabo_base"
+            - name: DB_USER
+              value: "root"
+            - name: DB_PASSWORD
+              value: "Gabo"
+          ports:
+            - containerPort: 3306
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: mysql-data
+              mountPath: /var/lib/mysql
       volumes:
-        - name: init-sql
-          hostPath:
-            path: /home/runner/Gabo_Dev/Data_base/init.sql  # Replace with absolute file path for init SQL
         - name: mysql-data
-          hostPath:
-            path: /home/runner/Gabo_Dev/mysql-data         # Replace with a directory for MySQL data storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc

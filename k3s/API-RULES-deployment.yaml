@@ -36,12 +36,9 @@ spec:
             mountPath: /root/.config/kaggle
             readOnly: true
       volumes:
-        - name: api-rules-volume
-          hostPath:
-            path: /home/runner/Gabo_Dev/API-RULES
-        - name: utils-volume
-          hostPath:
-            path: /home/runner/Gabo_Dev/utils
-        - name: kaggle-config
-          hostPath:
-            path: /home/runner/Gabo_Dev/kaggle/kaggle.json
+        - name: api-rules-data
+          emptyDir: {}
+        - name: utils-data
+          emptyDir: {}
+        - name: kaggle-config-data
+          emptyDir: {}

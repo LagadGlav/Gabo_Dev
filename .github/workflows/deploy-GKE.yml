@@ -67,10 +67,11 @@ jobs:
         mkdir -p /home/runner/.kube
         echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > /home/runner/.kube/config
         gcloud container clusters get-credentials clusteras --zone us-central1 --project gabo-462023
-        kubectl config use-context gke_gabo-462023_us-central1_clusteras
-        
+        kubectl config use-context gke_projectas-462023_us-central1_clusteras
+
     - name: Deploy to GKE
       run: |
+        kubectl apply -f ./k3s/mysql-pvc.yaml
         kubectl apply -f ./k3s/API-AG-deployment.yaml
         kubectl apply -f ./k3s/API-AG-service.yaml
         kubectl apply -f ./k3s/API-AP-deployment.yaml

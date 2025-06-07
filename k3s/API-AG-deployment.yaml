@@ -33,9 +33,7 @@ spec:
           - name: utils-volume
             mountPath: /utils
       volumes:
-        - name: api-ag-volume
-          hostPath:
-            path: /home/runner/Gabo_Dev/API-AG
-        - name: utils-volume
-          hostPath:
-            path: /home/runner/Gabo_Dev/utils
+        - name: api-ag-data
+          emptyDir: {}
+        - name: utils-data
+          emptyDir: {}
