@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: api-add-game
-        image: lagadglav/lagadglav/api-add-game:latest
+        image: lagadglav/api-add-game:latest
         ports:
           - containerPort: 8020
         resources:
