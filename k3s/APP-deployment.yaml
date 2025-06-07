@@ -17,6 +17,7 @@ spec:
     spec:
       containers:
       - name: app
+        image: lagadglav/gabo-app:latest
         env:
           - name: API_AP_URL
             value: "http://api-add-player:8010/ready"
