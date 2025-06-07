@@ -32,7 +32,7 @@ spec:
             mountPath: /API-RULES
           - name: utils-volume
             mountPath: /utils
-          - name: kaggle-config
+          - name: kaggle-config-volume
             mountPath: /root/.config/kaggle
             readOnly: true
       volumes:
