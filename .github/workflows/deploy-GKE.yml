@@ -71,7 +71,6 @@ jobs:
         
     - name: Deploy to GKE
       run: |
-        kubectl apply -f ./k3s/utils-pvc.yaml
         kubectl apply -f ./k3s/mysql-pvc.yaml
         kubectl apply -f ./k3s/API-AG-deployment.yaml
         kubectl apply -f ./k3s/API-AG-service.yaml
