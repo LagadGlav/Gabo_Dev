@@ -28,12 +28,10 @@ spec:
             memory: "512Mi"
             cpu: "500m"
         volumeMounts:
-          - name: api-ag-volume
-            mountPath: /API-AG
           - name: utils-volume
             mountPath: /utils
       volumes:
-        - name: api-ag-volume
-          emptyDir: {}
         - name: utils-volume
-          emptyDir: {}
+          hostPath:
+            path: /home/runner/utils
+            type: Directory

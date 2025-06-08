@@ -27,13 +27,11 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        volumeMounts:
-          - name: api-ap-volume
-            mountPath: /API-AP
+          volumeMounts:
+            - name: utils-volume
+              mountPath: /utils
+        volumes:
           - name: utils-volume
-            mountPath: /utils
-      volumes:
-        - name: api-ap-volume
-          emptyDir: {}
-        - name: utils-volume
-          emptyDir: {}
+            hostPath:
+              path: /home/runner/utils
+              type: Directory
