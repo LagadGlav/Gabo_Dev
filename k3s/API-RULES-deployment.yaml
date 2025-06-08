@@ -20,7 +20,7 @@ spec:
         image: lagadglav/gabo-api-rules:latest
         env:
           - name: PYTHONPATH
-            value: "/API-AP:/utils"
+            value: "/API-RULES:/utils"
         ports:
           - containerPort: 8030
         resources:

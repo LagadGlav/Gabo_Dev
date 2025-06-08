@@ -20,7 +20,7 @@ spec:
         image: lagadglav/gabo-api-add_game:latest
         env:
           - name: PYTHONPATH
-            value: "/API-AP:/utils"
+            value: "/API-AG:/utils"
         ports:
           - containerPort: 8020
         resources:
@@ -30,9 +30,4 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        volumeMounts:
-          - name: utils-volume
-            mountPath: /utils
-      volumes:
-        - name: utils-volume
-          emptyDir: {}
+

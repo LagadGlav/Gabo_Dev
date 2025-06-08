@@ -20,7 +20,7 @@ spec:
         image: lagadglav/gabo-backup:latest
         env:
           - name: PYTHONPATH
-            value: "/API-AP:/utils"
+            value: "/Backup:/utils"
         ports:
           - containerPort: 8080
         resources:

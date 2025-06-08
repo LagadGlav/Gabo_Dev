@@ -30,9 +30,4 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        volumeMounts:
-          - name: utils-volume
-            mountPath: /utils
-      volumes:
-        - name: utils-volume
-          emptyDir: {}
+
