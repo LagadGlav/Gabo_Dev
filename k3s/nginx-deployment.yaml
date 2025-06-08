@@ -1,8 +1,7 @@
-# Deployment for the "nginx" reverse proxy
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: nginx-deployment
   labels:
     app: nginx
 spec:
@@ -17,9 +16,9 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: lagadglav/gabo-nginx:latest
+        image: nginx:1.14.2
         ports:
-          - containerPort: 80
+        - containerPort: 80
         resources:
           requests:
             memory: "256Mi"
