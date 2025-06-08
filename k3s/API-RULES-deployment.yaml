@@ -31,9 +31,9 @@ spec:
             memory: "256Mi"
             cpu: "250m"
         volumeMounts:
-          - name: kaggle-config-volume
-            mountPath: /root/.config/kaggle
-            readOnly: true
+          - name: utils-volume
+            mountPath: /utils
       volumes:
-        - name: kaggle-config-volume
-          emptyDir: {}
+        - name: utils-volume
+          persistentVolumeClaim:
+            claimName: utils-pvc
