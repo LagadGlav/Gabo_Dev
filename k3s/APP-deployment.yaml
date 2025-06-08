@@ -35,12 +35,8 @@ spec:
             mountPath: /APP/Front_End/static
           - name: front-end-templates
             mountPath: /APP/Front_End/templates
-          - name: utils-volume
-            mountPath: /utils
       volumes:
         - name: front-end-static
           emptyDir: {}
         - name: front-end-templates
-          emptyDir: {}
-        - name: utils-volume
           emptyDir: {}

@@ -18,6 +18,9 @@ spec:
       containers:
       - name: backup
         image: lagadglav/gabo-backup:latest
+        env:
+          - name: PYTHONPATH
+            value: "/API-AP:/utils"
         ports:
           - containerPort: 8080
         resources:
@@ -30,10 +33,6 @@ spec:
         volumeMounts:
           - name: backup-volume
             mountPath: /Backup/back_up
-          - name: utils-volume
-            mountPath: /utils
       volumes:
         - name: backup-volume
-          emptyDir: {}
-        - name: utils-volume
           emptyDir: {}

@@ -18,6 +18,9 @@ spec:
       containers:
       - name: api-add-player
         image: lagadglav/gabo-api-add_player:latest
+        env:
+          - name: PYTHONPATH
+            value: "/API-AP:/utils"
         ports:
           - containerPort: 8010
         resources:

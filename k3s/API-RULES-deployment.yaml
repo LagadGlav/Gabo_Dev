@@ -18,6 +18,9 @@ spec:
       containers:
       - name: api-rules
         image: lagadglav/gabo-api-rules:latest
+        env:
+          - name: PYTHONPATH
+            value: "/API-AP:/utils"
         ports:
           - containerPort: 8030
         resources:
@@ -28,13 +31,9 @@ spec:
             memory: "256Mi"
             cpu: "250m"
         volumeMounts:
-          - name: utils-volume
-            mountPath: /utils
           - name: kaggle-config-volume
             mountPath: /root/.config/kaggle
             readOnly: true
       volumes:
-        - name: utils-volume
-          emptyDir: {}
         - name: kaggle-config-volume
           emptyDir: {}
