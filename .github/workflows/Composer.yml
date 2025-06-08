@@ -20,7 +20,7 @@ jobs:
           username: ${{ secrets.SSH_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "."
-          target: "/home/${{ secrets.VM_USERNAME }}/app"
+          target: "/home/${{ secrets.SSH_USERNAME }}/app"
 
       - name: Deploy Docker Compose on VM
         uses: appleboy/ssh-action@master
