@@ -15,9 +15,9 @@ import os, sys  # OS-level operations for file paths or environmental variables
 # Initialize threading lock for thread-safe operations
 lock = Lock()
 
-sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion
-from exceptions import DatabaseError, NetworkError, StartUpError
+
+from utils.util import connect_to_database_interro, get_connexion
+from utils.exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configuration de Flask
 app = Flask(__name__)

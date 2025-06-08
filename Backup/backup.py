@@ -6,10 +6,8 @@ import logging
 import sys
 import mysql.connector
 
-sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion, notify_service
-from exceptions import DatabaseError, NetworkError, StartUpError
-
+from utils.util import connect_to_database_interro, get_connexion
+from utils.exceptions import DatabaseError, NetworkError, StartUpError
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,  # Set the level to INFO (adjust as needed: DEBUG, WARNING, ERROR)
