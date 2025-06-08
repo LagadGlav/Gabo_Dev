@@ -7,8 +7,9 @@ import os
 from webbrowser import Error
 
 
-from utils.util import connect_to_database_interro, get_connexion
-from utils.exceptions import DatabaseError, NetworkError, StartUpError
+sys.path.append("/utils")
+from util import connect_to_database_interro, get_connexion, notify_service
+from exceptions import DatabaseError, NetworkError, StartUpError
 
 API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010")
 

@@ -10,6 +10,7 @@ services:
     volumes:
       - ./APP/Front_End/static:/APP/Front_End/static
       - ./APP/Front_End/templates:/APP/Front_End/templates
+      - ./utils:/utils
     expose:
       - "8000"
     networks:
@@ -21,6 +22,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./API-AP:/API-AP
+      - ./utils:/utils
     expose:
       - "8010"
     networks:
@@ -34,6 +36,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./API-AG:/API-AG
+      - ./utils:/utils
     expose:
       - "8020"
     networks:
@@ -47,6 +50,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./API-RULES:/API-RULES
+      - ./utils:/utils
       - ./kaggle/kaggle.json:/root/.config/kaggle/kaggle.json:ro
     ports:
       - "8030"
@@ -96,6 +100,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./Backup/back_up:/Backup/back_up
+      - ./utils:/utils
     ports:
       - "8080:8080"
     networks:
