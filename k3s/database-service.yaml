@@ -1,0 +1,15 @@
+# Service for the "data_base" service
+apiVersion: v1
+kind: Service
+metadata:
+  name: data-base-service
+  labels:
+    app: data-base
+spec:
+  selector:
+    app: data-base
+  ports:
+    - protocol: TCP
+      port: 3306
+      targetPort: 3306
+  type: ClusterIP

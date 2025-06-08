@@ -1,0 +1,29 @@
+# Deployment for the "api-rules" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-rules
+  labels:
+    app: api-rules
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-rules
+  template:
+    metadata:
+      labels:
+        app: api-rules
+    spec:
+      containers:
+      - name: api-rules
+        image: lagadglav/gabo-api-rules:latest
+        ports:
+          - containerPort: 8030
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"

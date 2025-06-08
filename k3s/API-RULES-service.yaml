@@ -1,0 +1,15 @@
+# Service for the "api-rules" service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-rules-service
+  labels:
+    app: api-rules
+spec:
+  selector:
+    app: api-rules
+  ports:
+    - protocol: TCP
+      port: 8030
+      targetPort: 8030
+  type: LoadBalancer

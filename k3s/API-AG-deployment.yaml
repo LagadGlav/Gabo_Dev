@@ -1,24 +1,25 @@
+# Deployment for the "api-add-game" service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: api-add-game
   labels:
-    app: nginx
+    app: api-add-game
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: api-add-game
   template:
     metadata:
       labels:
-        app: nginx
+        app: api-add-game
     spec:
       containers:
-      - name: nginx
-        image: lagadglav/gabo-nginx:latest
+      - name: api-add-game
+        image: lagadglav/gabo-api-add_game:latest
         ports:
-          - containerPort: 80
+          - containerPort: 8020
         resources:
           requests:
             memory: "256Mi"
@@ -26,3 +27,5 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+
+

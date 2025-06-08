@@ -1,16 +1,15 @@
+# Service for the "nginx" deployment
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
-    kompose.version: 1.36.0 (ae2a39403)
+  name: nginx-service
   labels:
-    io.kompose.service: nginx
-  name: nginx
+    app: nginx
 spec:
+  selector:
+    app: nginx
   ports:
-    - name: "80"
+    - protocol: TCP
       port: 80
       targetPort: 80
-  selector:
-    io.kompose.service: nginx
+  type: LoadBalancer

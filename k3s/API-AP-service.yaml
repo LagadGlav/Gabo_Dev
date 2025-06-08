@@ -1,0 +1,15 @@
+# Service for the "api-add-player" service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-add-player-service
+  labels:
+    app: api-add-player
+spec:
+  selector:
+    app: api-add-player
+  ports:
+    - protocol: TCP
+      port: 8010
+      targetPort: 8010
+  type: LoadBalancer

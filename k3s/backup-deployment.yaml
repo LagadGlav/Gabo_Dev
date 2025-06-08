@@ -1,43 +1,40 @@
+# Deployment for the "backup" service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
-    kompose.version: 1.36.0 (ae2a39403)
-  labels:
-    io.kompose.service: backup
   name: backup
+  labels:
+    app: backup
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: backup
-  strategy:
-    type: Recreate
+      app: backup
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
-        kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: backup
+        app: backup
     spec:
       containers:
-        - image: backup
-          name: backup
-          ports:
-            - containerPort: 8080
-              protocol: TCP
-          volumeMounts:
-            - mountPath: /Backup/back_up
-              name: backup-claim0
-            - mountPath: /utils
-              name: backup-claim1
-      restartPolicy: Always
+      - name: backup
+        image: lagadglav/gabo-backup:latest
+        env:
+          - name: PYTHONPATH
+            value: "/Backup:/utils"
+        ports:
+          - containerPort: 8080
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+        volumeMounts:
+          - name: backup-volume
+            mountPath: /Backup/back_up
       volumes:
-        - name: backup-claim0
-          persistentVolumeClaim:
-            claimName: backup-claim0
-        - name: backup-claim1
-          persistentVolumeClaim:
-            claimName: backup-claim1
+        - name: backup-volume
+          emptyDir: {}
+
+

@@ -1,24 +1,25 @@
+# Deployment for the "api-add-player" service
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  name: api-add-player
   labels:
-    app: nginx
+    app: api-add-player
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      app: api-add-player
   template:
     metadata:
       labels:
-        app: nginx
+        app: api-add-player
     spec:
       containers:
-      - name: nginx
-        image: lagadglav/gabo-nginx:latest
+      - name: api-add-player
+        image: lagadglav/gabo-api-add_player:latest
         ports:
-          - containerPort: 80
+          - containerPort: 8010
         resources:
           requests:
             memory: "256Mi"
@@ -26,3 +27,4 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
+
