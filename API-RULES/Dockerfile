@@ -9,7 +9,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le script
-COPY api_rules.py ./api-rules.py
+COPY api_rules.py ./api_rules.py
 
 # Point d'entrée pour exécuter le script au démarrage
 # Gunicorn va écouter sur le port 8010
