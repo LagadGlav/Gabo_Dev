@@ -1,28 +1,29 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx
+  annotations:
+    kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
+    kompose.version: 1.36.0 (ae2a39403)
   labels:
-    app: nginx
+    io.kompose.service: nginx
+  name: nginx
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: nginx
+      io.kompose.service: nginx
   template:
     metadata:
+      annotations:
+        kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
+        kompose.version: 1.36.0 (ae2a39403)
       labels:
-        app: nginx
+        io.kompose.service: nginx
     spec:
       containers:
-      - name: nginx
-        image: lagadglav/gabo-nginx:latest
-        ports:
-          - containerPort: 80
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
+        - image: nginx
+          name: nginx
+          ports:
+            - containerPort: 80
+              protocol: TCP
+      restartPolicy: Always

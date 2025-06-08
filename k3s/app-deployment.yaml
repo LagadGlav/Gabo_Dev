@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: backup
-  name: backup
+    io.kompose.service: app
+  name: app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: backup
+      io.kompose.service: app
   strategy:
     type: Recreate
   template:
@@ -20,24 +20,32 @@ spec:
         kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: backup
+        io.kompose.service: app
     spec:
       containers:
-        - image: backup
-          name: backup
+        - env:
+            - name: API_AP_URL
+              value: http://api-add_player:8010/ready
+          image: app
+          name: app
           ports:
-            - containerPort: 8080
+            - containerPort: 8000
               protocol: TCP
           volumeMounts:
-            - mountPath: /Backup/back_up
-              name: backup-claim0
+            - mountPath: /APP/Front_End/static
+              name: app-claim0
+            - mountPath: /APP/Front_End/templates
+              name: app-claim1
             - mountPath: /utils
-              name: backup-claim1
+              name: app-claim2
       restartPolicy: Always
       volumes:
-        - name: backup-claim0
+        - name: app-claim0
           persistentVolumeClaim:
-            claimName: backup-claim0
-        - name: backup-claim1
+            claimName: app-claim0
+        - name: app-claim1
           persistentVolumeClaim:
-            claimName: backup-claim1
+            claimName: app-claim1
+        - name: app-claim2
+          persistentVolumeClaim:
+            claimName: app-claim2

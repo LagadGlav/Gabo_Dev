@@ -5,13 +5,13 @@ metadata:
     kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
     kompose.version: 1.36.0 (ae2a39403)
   labels:
-    io.kompose.service: backup
-  name: backup
+    io.kompose.service: api-add-game
+  name: api-add-game
 spec:
   replicas: 1
   selector:
     matchLabels:
-      io.kompose.service: backup
+      io.kompose.service: api-add-game
   strategy:
     type: Recreate
   template:
@@ -20,24 +20,24 @@ spec:
         kompose.cmd: C:\Users\Baptiste Fougeray\kompose\kompose.exe convert -f docker-compose.yml
         kompose.version: 1.36.0 (ae2a39403)
       labels:
-        io.kompose.service: backup
+        io.kompose.service: api-add-game
     spec:
       containers:
-        - image: backup
-          name: backup
+        - image: api-add-game
+          name: api-add-game
           ports:
-            - containerPort: 8080
+            - containerPort: 8020
               protocol: TCP
           volumeMounts:
-            - mountPath: /Backup/back_up
-              name: backup-claim0
+            - mountPath: /API-AG
+              name: api-add-game-claim0
             - mountPath: /utils
-              name: backup-claim1
+              name: api-add-game-claim1
       restartPolicy: Always
       volumes:
-        - name: backup-claim0
+        - name: api-add-game-claim0
           persistentVolumeClaim:
-            claimName: backup-claim0
-        - name: backup-claim1
+            claimName: api-add-game-claim0
+        - name: api-add-game-claim1
           persistentVolumeClaim:
-            claimName: backup-claim1
+            claimName: api-add-game-claim1

@@ -71,20 +71,6 @@ jobs:
         
     - name: Deploy to GKE
       run: |
-        kubectl apply -f ./k3s/mysql-pvc.yaml
-        kubectl apply -f ./k3s/API-AG-deployment.yaml
-        kubectl apply -f ./k3s/API-AG-service.yaml
-        kubectl apply -f ./k3s/API-AP-deployment.yaml
-        kubectl apply -f ./k3s/API-AP-service.yaml
-        kubectl apply -f ./k3s/API-RULES-deployment.yaml
-        kubectl apply -f ./k3s/API-RULES-service.yaml
-        kubectl apply -f ./k3s/APP-deployment.yaml
-        kubectl apply -f ./k3s/APP-service.yaml
-        kubectl apply -f ./k3s/backup-deployment.yaml
-        kubectl apply -f ./k3s/backup-service.yaml
-        kubectl apply -f ./k3s/database-deployment.yaml
-        kubectl apply -f ./k3s/database-service.yaml
-        kubectl apply -f ./k3s/nginx-deployment.yaml
-        kubectl apply -f ./k3s/nginx-service.yaml
+        kubectl apply -f k3s/
       env:
         KUBECONFIG: /home/runner/.kube/config
