@@ -28,12 +28,8 @@ spec:
             memory: "512Mi"
             cpu: "500m"
         volumeMounts:
-          - name: api-ap-volume
-            mountPath: /API-AP
           - name: utils-volume
             mountPath: /utils
       volumes:
-        - name: api-ap-volume
-          emptyDir: {}
         - name: utils-volume
           emptyDir: {}

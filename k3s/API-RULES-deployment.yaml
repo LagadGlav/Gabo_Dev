@@ -28,16 +28,12 @@ spec:
             memory: "256Mi"
             cpu: "250m"
         volumeMounts:
-          - name: api-rules-volume
-            mountPath: /API-RULES
           - name: utils-volume
             mountPath: /utils
           - name: kaggle-config-volume
             mountPath: /root/.config/kaggle
             readOnly: true
       volumes:
-        - name: api-rules-volume
-          emptyDir: {}
         - name: utils-volume
           emptyDir: {}
         - name: kaggle-config-volume
