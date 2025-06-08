@@ -33,13 +33,8 @@ spec:
         volumeMounts:
           - name: backup-volume
             mountPath: /Backup/back_up
-          - name: utils-volume
-            mountPath: /utils
       volumes:
         - name: backup-volume
           emptyDir: {}
-        - name: utils-volume
-          persistentVolumeClaim:
-            claimName: utils-pvc
 
 
