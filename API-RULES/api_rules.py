@@ -26,11 +26,19 @@ KAGGLE_DATASET_URL = "https://www.kaggle.com/datasets/baptistefougeray/gabo-rule
 # Constants for Kaggle API
 DATASET_SLUG = "baptistefougeray/gabo-rules"
 DOWNLOAD_DIR = "data"  # Directory where dataset files will be stored
-CSV_FILENAME = "Gabo.csv"  # Name of the CSV file inside the dataset
-CSV_FILE_PATH = os.path.join(DOWNLOAD_DIR, CSV_FILENAME)
+CSV_EN_FILENAME = "Gabo.csv"  # Name of the CSV file inside the dataset
+CSV_FR_FILENAME = "Gabo_FR.csv"  # Name of the CSV file inside the dataset
+CSV_ES_FILENAME = "Gabo_ES.csv"  # Name of the CSV file inside the dataset
+CSV_EUS_FILENAME = "Gabo_EUS.csv"  # Name of the CSV file inside the dataset
+CSV_BZH_FILENAME = "Gabo_BR.csv"  # Name of the CSV file inside the dataset
+CSV_FILE_PATH_EN = os.path.join(DOWNLOAD_DIR, CSV_EN_FILENAME)
+CSV_FILE_PATH_ES = os.path.join(DOWNLOAD_DIR, CSV_ES_FILENAME)
+CSV_FILE_PATH_FR = os.path.join(DOWNLOAD_DIR, CSV_FR_FILENAME)
+CSV_FILE_PATH_EUS = os.path.join(DOWNLOAD_DIR, CSV_EUS_FILENAME)
+CSV_FILE_PATH_BZH = os.path.join(DOWNLOAD_DIR, CSV_BZH_FILENAME)
 
 
-def download_and_extract_dataset():
+def download_and_extract_dataset(CSV_FILE_PATH):
     """
     Uses Kaggle API to download and unzip the dataset if it has not been downloaded yet.
     """
@@ -49,28 +57,38 @@ def download_and_extract_dataset():
     else:
         app.logger.info("Dataset already exists. Skipping download.")
 
+
 @app.route('/api-rules/fetch_rules', methods=['GET'])
 def fetch_dataset():
-    """
-    Fetches a public Kaggle dataset (CSV file) and returns its contents as JSON.
-    This endpoint makes an HTTP GET request to the dataset URL, reads the CSV content into
-    a pandas DataFrame, and then converts it into a list of dictionary records.
-    """
+    # Get the language parameter, defaulting to English if not provided
+    lang = request.args.get('lang', 'en')
+
+    # Select the CSV file based on the language code
+    if lang == 'es':
+        csv_file_path = CSV_FILE_PATH_ES
+    elif lang == 'fr':
+        csv_file_path = CSV_FILE_PATH_FR
+    elif lang == 'eus':
+        csv_file_path = CSV_FILE_PATH_EUS
+    elif lang == 'bzh':
+        csv_file_path = CSV_FILE_PATH_BZH
+    else:
+        csv_file_path = CSV_FILE_PATH_EN
+
     try:
-        # Ensure the dataset is downloaded and extracted
-        download_and_extract_dataset()
+        # Ensure the dataset is downloaded and extracted for the specific language
+        download_and_extract_dataset(csv_file_path)
 
-        app.logger.info("Reading CSV file...")
-        # Read the CSV file (the CSV must be properly formatted)
-        df = pd.read_csv(CSV_FILE_PATH)
+        app.logger.info("Reading CSV file for language: %s", lang)
+        # Read the CSV file
+        df = pd.read_csv(csv_file_path)
 
-        # Convert DataFrame to a JSON-serializable list of dictionaries
+        # Convert DataFrame into a JSON-serializable list of records
         data = df.to_dict(orient="records")
 
-        app.logger.info("Dataset fetched and converted successfully.")
+        app.logger.info("Dataset fetched and converted successfully for language: %s", lang)
         return jsonify({"status": "success", "data": data}), 200
     except Exception as e:
-        # Log and return any unexpected error
         app.logger.error(f"Unexpected error: {str(e)}")
         return jsonify({"error": "Unexpected error occurred", "details": str(e)}), 500
 
