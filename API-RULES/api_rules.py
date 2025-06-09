@@ -25,12 +25,12 @@ KAGGLE_DATASET_URL = "https://www.kaggle.com/datasets/baptistefougeray/gabo-rule
 
 # Constants for Kaggle API
 DATASET_SLUG = "baptistefougeray/gabo-rules"
-DOWNLOAD_DIR = "data"  # Directory where dataset files will be stored
-CSV_EN_FILENAME = "Gabo.csv"  # Name of the CSV file inside the dataset
-CSV_FR_FILENAME = "Gabo_FR.csv"  # Name of the CSV file inside the dataset
-CSV_ES_FILENAME = "Gabo_ES.csv"  # Name of the CSV file inside the dataset
-CSV_EUS_FILENAME = "Gabo_EUS.csv"  # Name of the CSV file inside the dataset
-CSV_BZH_FILENAME = "Gabo_BR.csv"  # Name of the CSV file inside the dataset
+DOWNLOAD_DIR = "data"
+CSV_EN_FILENAME = "Gabo.csv"
+CSV_FR_FILENAME = "Gabo_FR.csv"
+CSV_ES_FILENAME = "Gabo_ES.csv"
+CSV_EUS_FILENAME = "Gabo_EUS.csv"
+CSV_BZH_FILENAME = "Gabo_BR.csv"
 CSV_FILE_PATH_EN = os.path.join(DOWNLOAD_DIR, CSV_EN_FILENAME)
 CSV_FILE_PATH_ES = os.path.join(DOWNLOAD_DIR, CSV_ES_FILENAME)
 CSV_FILE_PATH_FR = os.path.join(DOWNLOAD_DIR, CSV_FR_FILENAME)
@@ -45,25 +45,20 @@ def download_and_extract_dataset(CSV_FILE_PATH):
     if not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR)
 
-    # Check if the CSV file already exists
-    if not os.path.exists(CSV_FILE_PATH):
-        app.logger.info("Dataset not found locally. Downloading dataset via Kaggle API...")
-        api = KaggleApi()
-        api.authenticate()
+    api = KaggleApi()
+    api.authenticate()
 
-        # Download dataset files as a ZIP and unzip them automatically
-        api.dataset_download_files(DATASET_SLUG, path=DOWNLOAD_DIR, unzip=True)
-        app.logger.info("Dataset downloaded and extracted.")
-    else:
-        app.logger.info("Dataset already exists. Skipping download.")
+    # Download dataset files as a ZIP and unzip them automatically
+    # Datas are replaced if they already exist locally, allowing for easy updates on rules
+    api.dataset_download_files(DATASET_SLUG, path=DOWNLOAD_DIR, unzip=True)
+    app.logger.info("Dataset downloaded and extracted.")
+
 
 
 @app.route('/api-rules/fetch_rules', methods=['GET'])
 def fetch_dataset():
-    # Get the language parameter, defaulting to English if not provided
     lang = request.args.get('lang', 'en')
 
-    # Select the CSV file based on the language code
     if lang == 'es':
         csv_file_path = CSV_FILE_PATH_ES
     elif lang == 'fr':
@@ -75,17 +70,21 @@ def fetch_dataset():
     else:
         csv_file_path = CSV_FILE_PATH_EN
 
+    app.logger.info(f"Fetching rules for language '{lang}' from: {csv_file_path}")
+
+    # Ensure the dataset is downloaded and extracted for the specific language
+    download_and_extract_dataset(csv_file_path)
+
+    if not os.path.exists(csv_file_path):
+        error_msg = f"CSV file for language '{lang}' not found at {csv_file_path}"
+        app.logger.error(error_msg)
+        return jsonify({"error": error_msg}), 404
+
     try:
-        # Ensure the dataset is downloaded and extracted for the specific language
-        download_and_extract_dataset(csv_file_path)
-
-        app.logger.info("Reading CSV file for language: %s", lang)
-        # Read the CSV file
-        df = pd.read_csv(csv_file_path)
-
-        # Convert DataFrame into a JSON-serializable list of records
+        app.logger.info("Reading CSV file...")
+        # Got some issues with foramtting then try switching to the Python engine and skipping bad lines.
+        df = pd.read_csv(csv_file_path, engine='python', on_bad_lines='skip')
         data = df.to_dict(orient="records")
-
         app.logger.info("Dataset fetched and converted successfully for language: %s", lang)
         return jsonify({"status": "success", "data": data}), 200
     except Exception as e:
