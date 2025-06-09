@@ -131,7 +131,7 @@ function displayPlayers(players) {
             <div class="player-details hidden">
                 <p>Number of games played: ${player.nombre_partie}</p>
                 <p>Score total: ${player.score_total}</p>
-                <p>Average socre per game: ${player.ratio_score}</p>
+                <p>Average score per game: ${player.ratio_score}</p>
                 <p>Better ${(1-player.ratio_rang)*100}% of players in game</p>
             </div>
         `;
@@ -142,7 +142,7 @@ function displayPlayers(players) {
                 <div class="player-details hidden">
                 <p>Number of games played: ${player.nombre_partie}</p>
                 <p>Score total: ${player.score_total}</p>
-                <p>Average socre per game: ${player.ratio_score}</p>
+                <p>Average score per game: ${player.ratio_score}</p>
                 <p>Better ${(1-player.ratio_rang)*100}% of players in game</p>
                 </div>
             `;
