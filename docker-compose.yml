@@ -20,6 +20,8 @@ services:
     build:
       context: ./API-AP
       dockerfile: Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./API-AP:/API-AP
       - ./utils:/utils
@@ -34,6 +36,8 @@ services:
     build:
       context: ./API-AG
       dockerfile: Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./API-AG:/API-AG
       - ./utils:/utils
@@ -98,6 +102,8 @@ services:
     build:
       context: ./Backup
       dockerfile: Dockerfile
+    env_file:
+      - .env
     volumes:
       - ./Backup/back_up:/Backup/back_up
       - ./utils:/utils

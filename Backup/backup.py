@@ -6,6 +6,15 @@ import logging
 import sys
 import mysql.connector
 
+from dotenv import load_dotenv
+import os
+
+try:
+    load_dotenv()
+    logging.info("DOTENV LOADED")
+except:
+    logging.info("DOTENV NOT LOADED")
+
 sys.path.append("/utils")
 from util import connect_to_database_interro, get_connexion, notify_service
 from exceptions import DatabaseError, NetworkError, StartUpError
@@ -149,8 +158,8 @@ def generate_backup(host, port, username, password, database, backup_path, last_
 if __name__ == "__main__":
     DB_HOST = os.getenv("DB_HOST", "data_base")
     DB_PORT = int(os.getenv("DB_PORT", 3306))
-    DB_USER = os.getenv("DB_USER", "root")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
     DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
     BACKUP_PATH = os.getenv("BACKUP_PATH", "/Backup/back_up")
     FLASK_URL = os.getenv("FLASK_APP_URL", "http://app:8000/ready")

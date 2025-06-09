@@ -3,17 +3,17 @@
 {% block title %}Gabo{% endblock %}
 
 {% block content %}
-<h1>Ajouter une Partie</h1>
+<h1>Add a game</h1>
 
 <div id="new_game">
-    <button type="button" onclick="openNewGameForm()">Nouvelle Partie</button>
+    <button type="button" onclick="openNewGameForm()">New Game</button>
 </div>
 
 <div id="newGameForm" class="hidden">
-    <button type="button" onclick="resetGameForm()">Reset table de marque</button>
+    <button type="button" onclick="resetGameForm()">Reset table</button>
     <label for="playerId">ID Joueur :</label>
     <input type="text" id="playerId" name="playerId" required>
-    <button type="button" onclick="fetchPlayerInfo()">Ajouter Joueur</button>
+    <button type="button" onclick="fetchPlayerInfo()">Add a player</button>
 </div>
 
 <div id="table" class="hidden">
@@ -21,8 +21,8 @@
         <table border="1" id="savedTable">
             <thead>
             <tr>
-                <th>Joueur</th>
-                <th>Statisques(ELO)</th>
+                <th>Player</th>
+                <th>Stats(ELO)</th>
                 <th>Score</th>
             </tr>
             </thead>
@@ -30,7 +30,7 @@
             <!-- Les joueurs ajoutés apparaîtront ici -->
             </tbody>
         </table>
-        <button id="sendTableButton">Envoyer partie</button>
+        <button id="sendTableButton">Send</button>
     </form>
 </div>
 

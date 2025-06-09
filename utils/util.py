@@ -4,6 +4,14 @@ import mysql.connector
 import sys
 import requests
 import os
+from dotenv import load_dotenv
+
+try:
+    load_dotenv()
+    logging.info("DOTENV LOADED")
+except:
+    logging.info("DOTENV NOT LOADED")
+
 sys.path.append("/utils")
 from exceptions import DatabaseError, NetworkError, StartUpError
 # Configure logging
@@ -17,8 +25,8 @@ from exceptions import DatabaseError, NetworkError, StartUpError
 
 DB_HOST = os.getenv("DB_HOST", "data_base")
 DB_PORT = int(os.getenv("DB_PORT", 3306))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
 
 def get_connexion():
