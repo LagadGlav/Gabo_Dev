@@ -74,7 +74,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./Data_base/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Data_Base/init.sql:/docker-entrypoint-initdb.d/init.sql
     tmpfs:
       - /var/lib/mysql
     networks:
