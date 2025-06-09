@@ -39,7 +39,7 @@ jobs:
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/app
             echo "${{ secrets.ENV_VARS }}" > .env
-            cd /Data_Base
+            cd /home/${{ secrets.SSH_USERNAME }}/app/Data_Base
             echo "${{ secrets.ENV_VARS }}" > .env
             cat .env
 
