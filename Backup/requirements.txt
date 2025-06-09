@@ -2,4 +2,3 @@ flask==2.2.3
 Werkzeug==2.2.3
 mysql-connector-python==8.0.31
 requests==2.28.1
-dotenv

@@ -61,8 +61,11 @@ services:
     build:
       context: ./Data_Base
     container_name: Data_Base_Gabo
-    env_file:
-      - .env
+    environment:
+      DB_HOST: data_base
+      DB_DATABASE: Gabo_base
+      DB_USER: root
+      DB_PASSWORD: Gabo
     ports:
       - "3306:3306"
     volumes:
