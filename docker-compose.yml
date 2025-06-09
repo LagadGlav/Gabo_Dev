@@ -68,8 +68,8 @@ services:
     environment:
       DB_HOST: data_base
       DB_DATABASE: Gabo_base
-      DB_USER: root
-      DB_PASSWORD: Gabo
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
     ports:
       - "3306:3306"
     volumes:
