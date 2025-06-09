@@ -91,6 +91,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/app
-            docker-compose pull
-            # Bring up the services in detached mode (adjust commands as needed)
-            docker-compose up -d
+            sudo docker-compose pull
+            sudo docker-compose up -d
