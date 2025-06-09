@@ -6,9 +6,50 @@ on:
       - production-docker
 
 jobs:
-  deploy:
+  build-and-push:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
+      - name: Authenticate Docker to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build and Push Images
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        run: |
+          # Build and push gabo-app
+          docker build -t "${DOCKER_USERNAME}/gabo-app:latest" ./APP
+          docker push "${DOCKER_USERNAME}/gabo-app:latest"
+
+          # Build and push gabo-api-add_game
+          docker build -t "${DOCKER_USERNAME}/gabo-api-add_game:latest" ./API-AG
+          docker push "${DOCKER_USERNAME}/gabo-api-add_game:latest"
+
+          # Build and push gabo-api-add_player
+          docker build -t "${DOCKER_USERNAME}/gabo-api-add_player:latest" ./API-AP
+          docker push "${DOCKER_USERNAME}/gabo-api-add_player:latest"
+
+          # Build and push gabo-nginx
+          docker build -t "${DOCKER_USERNAME}/gabo-nginx:latest" ./nginx
+          docker push "${DOCKER_USERNAME}/gabo-nginx:latest"
+
+          # Build and push gabo-database
+          docker build -t "${DOCKER_USERNAME}/gabo-database:latest" ./Data_Base
+          docker push "${DOCKER_USERNAME}/gabo-database:latest"
+
+          # Build and push gabo-backup
+          docker build -t "${DOCKER_USERNAME}/gabo-backup:latest" ./Backup
+          docker push "${DOCKER_USERNAME}/gabo-backup:latest"
+
+          # Build and push gabo-api-rules
+          docker build -t "${DOCKER_USERNAME}/gabo-api-rules:latest" ./API-RULES
+          docker push "${DOCKER_USERNAME}/gabo-api-rules:latest"
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -41,6 +82,7 @@ jobs:
             cd /home/${{ secrets.SSH_USERNAME }}/app
             echo "${{ secrets.ENV_VARS }}" > .env
 
+
       - name: Deploy Docker Compose on VM
         uses: appleboy/ssh-action@master
         with:
@@ -49,4 +91,5 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd ~/app
-            sudo docker-compose up --build
+            sudo docker-compose pull
+            sudo docker-compose up -d
