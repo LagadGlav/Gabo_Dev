@@ -46,7 +46,7 @@ jobs:
           # Build and push gabo-api-rules
           docker build -t "${DOCKER_USERNAME}/gabo-api-rules:latest" ./API-RULES
           docker push "${DOCKER_USERNAME}/gabo-api-rules:latest"
-  
+
   deploy:
     runs-on: ubuntu-latest
 

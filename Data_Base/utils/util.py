@@ -15,17 +15,17 @@ logging.basicConfig(
 sys.path.append("/utils")
 from exceptions import DatabaseError, NetworkError, StartUpError
 
-DB_HOST = os.getenv("DB_HOST", "data_base")
-DB_PORT = int(os.getenv("DB_PORT", 3306))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
-DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = int(os.getenv("DB_PORT"))
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_DATABASE")
 
 def get_connexion():
     """
     Establishes a connection to the MySQL database.
     Returns:
-        mysql.connector.connection.MySQLConnection: A MySQL connection object.
+        mysql.connector.connection.MySQLConnection: A MySQL connection obj²ect.
 
     Raises:
         mysql.connector.Error: If unable to connect to the database.
