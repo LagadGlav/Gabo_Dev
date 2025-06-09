@@ -38,7 +38,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USERNAME }}/app
-            echo "${{ secrets.ENV_VARS }}" | base64 --decode > .env
+            echo "${{ secrets.ENV }}" | base64 --decode > .env
 
 
       - name: Deploy Docker Compose on VM
