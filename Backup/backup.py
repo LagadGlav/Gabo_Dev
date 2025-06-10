@@ -129,7 +129,7 @@ def generate_backup(host, port, username, password, database, backup_path, last_
             subprocess.run(dump_command, stdout=f, check=True)
         logging.info(f"Backup successfully created: {backup_file}")
     except subprocess.CalledProcessError as e:
-        logging.info(f"Error during backup: {e}")
+        logging.error(f"Error during backup: {e}")
         return None
 
     if last_backup is not None:
@@ -138,7 +138,7 @@ def generate_backup(host, port, username, password, database, backup_path, last_
                 os.remove(last_backup)
                 logging.info(f"{last_backup} removed")
             except OSError as e:
-                logging.info(f"Warning {last_backup} has not been removed")
+                logging.error(f"Warning {last_backup} has not been removed")
 
     return backup_file
 

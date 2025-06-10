@@ -552,7 +552,7 @@ def start_up():
     if id is not None:
         id = id['MAX(partie_id)'] + 1
     else:
-        id = 1
+        id = 5
 
     app.logger.info(f"Nombre de partie dans la base : {id}")
     return True
