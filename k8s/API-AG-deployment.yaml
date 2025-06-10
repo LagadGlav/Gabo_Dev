@@ -41,11 +41,11 @@ spec:
           - name: FLASK_APP_URL
             value: "http://app-service:8000/ready"
           - name: API_AP_URL
-            value: "http://api-add_player-service:8010/ready"
+            value: "http://api-add-player-service:8010/ready"
           - name: API_AG_URL
-            value: "http://api-add_game-service:8020/ready"
+            value: "http://api-add-game-service:8020/ready"
           - name: API_AG_URL_INDEX
-            value: "http://api-add_game-service:8020/reload_indexbyname"
+            value: "http://api-add-game-service:8020/reload_indexbyname"
         image: lagadglav/gabo-api-add_game:latest
         ports:
           - containerPort: 8020
