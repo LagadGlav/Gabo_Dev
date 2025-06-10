@@ -47,7 +47,6 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./API-RULES:/API-RULES
-      - ./kaggle/kaggle.json:/root/.config/kaggle/kaggle.json:ro
     ports:
       - "8030"
     networks:
@@ -65,7 +64,7 @@ services:
     ports:
       - "3306:3306"
     volumes:
-      - ./Data_base/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./Data_Base/init.sql:/docker-entrypoint-initdb.d/init.sql
     tmpfs:
       - /var/lib/mysql
     networks:

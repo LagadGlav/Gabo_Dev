@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copier le script
 COPY . /API-RULES
+COPY kaggle.json /root/.config/kaggle/kaggle.json
 
 # Point d'entrée pour exécuter le script au démarrage
 # Gunicorn va écouter sur le port 8010
