@@ -40,13 +40,7 @@ spec:
           - name: BACKUP_PATH
             value: "/Backup/back_up"
           - name: FLASK_APP_URL
-            value: "http://app:8000/ready"
-          - name: API_AP_URL
-            value: "http://api-add_player:8010/ready"
-          - name: API_AG_URL
-            value: "http://api-add_game:8020/ready"
-          - name: API_AG_URL_INDEX
-            value: "http://api-add_game:8020/reload_indexbyname"
+            value: "http://app-service:8000/ready"
         ports:
           - containerPort: 8030
         resources:

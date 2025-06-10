@@ -10,12 +10,12 @@ from webbrowser import Error
 from utils.util import connect_to_database_interro, get_connexion, notify_service
 from utils.exceptions import DatabaseError, NetworkError, StartUpError
 
-API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010")
+API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player-service:8010")
 
 # Configuration de Flask
 app = Flask(__name__)
 
-API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/patch_mapping_index")
+API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game-service:8020/patch_mapping_index")
 
 # Configure logging to capture INFO-level logs for debugging purposes
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")

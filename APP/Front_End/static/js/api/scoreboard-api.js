@@ -1,7 +1,7 @@
 // Define cache keys and Time-To-Live (TTL)
 const CACHE_KEY = 'allPlayers';
 const CACHE_TIMESTAMP_KEY = 'allPlayersTimestamp';
-const CACHE_TTL = 10 * 60 * 1; // 10 minutes in milliseconds
+const CACHE_TTL = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 // Fetch all players from API with caching
 function fetchAllPlayers() {

@@ -2,8 +2,6 @@ version: "3.9"
 
 services:
   app:
-    environment:
-      API_AP_URL: "http://api-add_player:8010/ready"
     build:
       context: ./APP
       dockerfile: Dockerfile
