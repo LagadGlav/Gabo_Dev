@@ -3,12 +3,8 @@ import time
 import subprocess
 import datetime
 import logging
-import sys
-import mysql.connector
 
-sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion, notify_service
-from exceptions import DatabaseError, NetworkError, StartUpError
+from utils.util import notify_service
 
 # Configure logging
 logging.basicConfig(

@@ -4,19 +4,26 @@ import mysql.connector
 import sys
 import requests
 import os
-sys.path.append("/utils")
-from exceptions import DatabaseError, NetworkError, StartUpError
+from dotenv import load_dotenv
+
+try:
+    load_dotenv()
+    logging.info("DOTENV LOADED")
+except:
+    logging.info("DOTENV NOT LOADED")
+
+from utils.exceptions import DatabaseError
+
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,  # Set the level to INFO (adjust as needed: DEBUG, WARNING, ERROR)
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-sys.path.append("/utils")
-from exceptions import DatabaseError, NetworkError, StartUpError
+from .exceptions import DatabaseError
 
 DB_HOST = os.getenv("DB_HOST", "data_base")
-DB_PORT = int(os.getenv("DB_PORT", 3306))
+DB_PORT = int(os.getenv("DB_PORT", "3306"))
 DB_USER = os.getenv("DB_USER", "root")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
 DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")

@@ -1,14 +1,9 @@
-import io
 import logging
 import os
 
 import pandas as pd
 import requests
 from flask import Flask, jsonify, request
-import sys
-
-sys.path.append("/utils")
-from exceptions import DatabaseError, NetworkError, StartUpError
 
 from kaggle.api.kaggle_api_extended import KaggleApi
 

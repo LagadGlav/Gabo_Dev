@@ -30,13 +30,3 @@ spec:
           limits:
             memory: "512Mi"
             cpu: "500m"
-        volumeMounts:
-          - name: front-end-static
-            mountPath: /APP/Front_End/static
-          - name: front-end-templates
-            mountPath: /APP/Front_End/templates
-      volumes:
-        - name: front-end-static
-          emptyDir: {}
-        - name: front-end-templates
-          emptyDir: {}
