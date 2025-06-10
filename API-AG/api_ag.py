@@ -549,7 +549,10 @@ def start_up():
     app.logger.info(f"Mapping id:name Index table {indexbyname}")
 
     id = get_nb_game_in_db()  # Retrieve maximum game ID
-    id = id['MAX(partie_id)'] + 1
+    if id is not None:
+        id = id['MAX(partie_id)'] + 1
+    else:
+        id = 1
 
     app.logger.info(f"Nombre de partie dans la base : {id}")
     return True
