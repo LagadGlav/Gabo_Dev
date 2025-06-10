@@ -68,7 +68,17 @@ jobs:
         echo "${{ secrets.KUBECONFIG_BASE64 }}" | base64 --decode > /home/runner/.kube/config
         gcloud container clusters get-credentials clusteras --zone us-central1 --project gabo-462023
         kubectl config use-context gke_gabo-462023_us-central1_clusteras
-        
+
+    - name: Create DB Secret from Template
+      run: |
+        sed -e "s/__DB_USER__/${{ secrets.DB_USER }}/" \
+            -e "s/__DB_PASSWORD__/${{ secrets.DB_PASSWORD }}/" \
+            db-secret.yaml.template > db-secret.yaml
+        kubectl apply -f db-secret.yaml
+      env:
+        KUBECONFIG: /home/runner/.kube/config
+
+
     - name: Deploy to GKE
       run: |
         kubectl apply -f ./k3s/mysql-pvc.yaml

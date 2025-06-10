@@ -1,0 +1,59 @@
+# Deployment for the "api-add-player" service
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-add-player
+  labels:
+    app: api-add-player
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-add-player
+  template:
+    metadata:
+      labels:
+        app: api-add-player
+    spec:
+      containers:
+      - name: api-add-player
+        env:
+          - name: PYTHONPATH
+            value: "/Backup:/utils"
+          - name: DB_HOST
+            value: "data-base-service"
+          - name: DB_DATABASE
+            value: "Gabo_base"
+          - name: DB_USER
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: DB_USER
+          - name: DB_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: db-credentials
+                key: DB_PASSWORD
+          - name: DB_PORT
+            value: "3306"
+          - name: BACKUP_PATH
+            value: "/Backup/back_up"
+          - name: FLASK_APP_URL
+            value: "http://app:8000/ready"
+          - name: API_AP_URL
+            value: "http://api-add_player:8010/ready"
+          - name: API_AG_URL
+            value: "http://api-add_game:8020/ready"
+          - name: API_AG_URL_INDEX
+            value: "http://api-add_game:8020/reload_indexbyname"
+        image: lagadglav/gabo-api-add_player:latest
+        ports:
+          - containerPort: 8010
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+

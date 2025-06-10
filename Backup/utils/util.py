@@ -24,8 +24,8 @@ from .exceptions import DatabaseError
 
 DB_HOST = os.getenv("DB_HOST", "data-base-service")
 DB_PORT = int(os.getenv("DB_PORT", "3306"))
-DB_USER = os.getenv("DB_USER", "root")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
 
 def get_connexion():
