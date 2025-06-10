@@ -53,8 +53,6 @@ def download_and_extract_dataset(CSV_FILE_PATH):
     api.dataset_download_files(DATASET_SLUG, path=DOWNLOAD_DIR, unzip=True)
     app.logger.info("Dataset downloaded and extracted.")
 
-
-
 @app.route('/api-rules/fetch_rules', methods=['GET'])
 def fetch_dataset():
     lang = request.args.get('lang', 'en')
@@ -82,7 +80,7 @@ def fetch_dataset():
 
     try:
         app.logger.info("Reading CSV file...")
-        # Got some issues with foramtting then try switching to the Python engine and skipping bad lines.
+        # Got some issues with formatting then try switching to the Python engine and skipping bad lines.
         df = pd.read_csv(csv_file_path, engine='python', on_bad_lines='skip')
         data = df.to_dict(orient="records")
         app.logger.info("Dataset fetched and converted successfully for language: %s", lang)
