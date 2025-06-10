@@ -73,8 +73,8 @@ jobs:
       run: |
         sed -e "s/__DB_USER__/${{ secrets.DB_USER }}/" \
             -e "s/__DB_PASSWORD__/${{ secrets.DB_PASSWORD }}/" \
-            db-secret.yaml.template > db-secret.yaml
-        kubectl apply -f db-secret.yaml
+            k8s/db-secret.yaml.template > k8s/db-secret.yaml
+        kubectl apply -f k8s/db-secret.yaml
       env:
         KUBECONFIG: /home/runner/.kube/config
 
