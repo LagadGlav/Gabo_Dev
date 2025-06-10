@@ -101,12 +101,13 @@ def generate_backup(host, port, username, password, database, backup_path, last_
     specified backup directory. If the directory does not exist, it is created
     automatically.
 
+    :param last_backup: Name of the last backup file to remove.
     :param host: Hostname or IP address of the MySQL server.
-    :type host: str
+    :type host: Str
     :param port: Port number the MySQL server is listening on.
-    :type port: int
+    :type port: Int
     :param username: Username to authenticate with the MySQL server.
-    :type username: str
+    :type username: Str
     :param password: Password to authenticate the `username` with the MySQL server.
     :type password: str
     :param database: Name of the database to back up.
@@ -114,7 +115,7 @@ def generate_backup(host, port, username, password, database, backup_path, last_
     :param backup_path: Path to the directory where the backup file will be saved.
     :type backup_path: str
     :return: A boolean indicating whether the backup was successful.
-    :rtype: bool or None
+    :rtype: Bool or None
     """
     # Create a suve if it doesn't exist
     if not os.path.exists(backup_path):
@@ -160,12 +161,12 @@ if __name__ == "__main__":
     DB_PORT = int(os.getenv("DB_PORT"))
     DB_USER = os.getenv("DB_USER")
     DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_NAME = os.getenv("DB_DATABASE", "Gabo_base")
-    BACKUP_PATH = os.getenv("BACKUP_PATH", "/Backup/back_up")
-    FLASK_URL = os.getenv("FLASK_APP_URL", "http://app:8000/ready")
-    API_AP_URL = os.getenv("API_AP_URL", "http://api-add_player:8010/ready")
-    API_AG_URL = os.getenv("API_AG_URL", "http://api-add_game:8020/ready")
-    API_AG_URL_INDEX = os.getenv("API_AG_URL", "http://api-add_game:8020/reload_indexbyname")
+    DB_NAME = os.getenv("DB_DATABASE")
+    BACKUP_PATH = os.getenv("BACKUP_PATH")
+    FLASK_URL = os.getenv("FLASK_APP_URL")
+    API_AP_URL = os.getenv("API_AP_URL")
+    API_AG_URL = os.getenv("API_AG_URL")
+    API_AG_URL_INDEX = os.getenv("API_AG_URL_INDEX")
 
 
     # Wait for database readiness

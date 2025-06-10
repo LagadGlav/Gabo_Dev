@@ -40,7 +40,7 @@ CSV_FILE_PATH_BZH = os.path.join(DOWNLOAD_DIR, CSV_BZH_FILENAME)
 
 def download_and_extract_dataset(CSV_FILE_PATH):
     """
-    Uses Kaggle API to download and unzip the dataset if it has not been downloaded yet.
+    Uses Kaggle API to download and unzip the dataset.
     """
     if not os.path.exists(DOWNLOAD_DIR):
         os.makedirs(DOWNLOAD_DIR)
@@ -55,6 +55,9 @@ def download_and_extract_dataset(CSV_FILE_PATH):
 
 @app.route('/api-rules/fetch_rules', methods=['GET'])
 def fetch_dataset():
+    """
+    Retrieves the rules dataset for the specified language.
+    """
     lang = request.args.get('lang', 'en')
 
     if lang == 'es':
@@ -80,7 +83,7 @@ def fetch_dataset():
 
     try:
         app.logger.info("Reading CSV file...")
-        # Got some issues with formatting then try switching to the Python engine and skipping bad lines.
+        # Got some issues with formatting, then try switching to the Python engine and skipping bad lines.
         df = pd.read_csv(csv_file_path, engine='python', on_bad_lines='skip')
         data = df.to_dict(orient="records")
         app.logger.info("Dataset fetched and converted successfully for language: %s", lang)
