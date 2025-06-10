@@ -143,7 +143,7 @@ def generate_backup(host, port, username, password, database, backup_path, last_
     return backup_file
 
 if __name__ == "__main__":
-    DB_HOST = os.getenv("DB_HOST", "data_base")
+    DB_HOST = os.getenv("DB_HOST", "data-base-service")
     DB_PORT = int(os.getenv("DB_PORT", 3306))
     DB_USER = os.getenv("DB_USER", "root")
     DB_PASSWORD = os.getenv("DB_PASSWORD", "Gabo")
