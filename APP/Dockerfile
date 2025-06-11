@@ -14,4 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /APP
 
 # Gunicorn va écouter sur le port 8000
-CMD ["gunicorn", "-w", "1", "--threads", "4", "-k", "gthread", "-b", "0.0.0.0:8000", "BE_app:app"]
+CMD ["gunicorn", "-w", "1", "--threads", "1", "-k", "gthread", "-b", "0.0.0.0:8000", "BE_app:app"]

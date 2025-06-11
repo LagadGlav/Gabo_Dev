@@ -43,7 +43,7 @@ def download_and_extract_dataset(CSV_FILE_PATH):
     api.authenticate()
 
     # Download dataset files as a ZIP and unzip them automatically
-    # Datas are replaced if they already exist locally, allowing for easy updates on rules
+    # Datas are replaced even if they already exist locally, allowing for easy updates on rules
     api.dataset_download_files(DATASET_SLUG, path=DOWNLOAD_DIR, unzip=True)
     app.logger.info("Dataset downloaded and extracted.")
 

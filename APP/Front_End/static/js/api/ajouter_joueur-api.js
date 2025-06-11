@@ -9,10 +9,11 @@ function newPlayer() {
         .then(response => response.json())
         .then(data => {
             alert(data.message);
-            console.log("Liste des variables :", data.variables); // Affiche la liste des variables
+            console.log("Liste des variables :", data.variables);
         })
         .catch(error => {
-            console.error("Erreur lors de l'envoi des données du joueur :", error);
+            alert("Probably id already taken, please chose an other one")
+            console.error("Error sending the player :", error);
         });
 
 }

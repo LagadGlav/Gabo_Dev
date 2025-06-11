@@ -1,20 +1,14 @@
 from flask import Flask, jsonify, request
 import logging
-import time
-import sys
 from webbrowser import Error
 from threading import Lock  # To ensure thread-safe operations
 
 import time  # For time-related operations
-import mysql.connector  # MySQL library for database connection and operations
-import mysql.connector.pooling  # Pooling for optimized connections
 import math  # Math utilities
-
 import os, sys  # OS-level operations for file paths or environmental variables
 
 # Initialize threading lock for thread-safe operations
 lock = Lock()
-
 
 from utils.util import connect_to_database_interro, get_connexion
 from utils.exceptions import DatabaseError, StartUpError
@@ -85,7 +79,7 @@ class Queue:
 # Class representing a game session
 class Game:
     """
-    Represents a game session with relevant properties.
+    Represents a game for one player.
 
     Attributes:
         id_game (int): The unique ID of the game session.
@@ -157,7 +151,7 @@ def get_player_info():
 
     This function handles requests to retrieve details of a player stored in the
     database. The function identifies the player by their `playerId`, either
-    directly as an integer or by resolving their name from an indexing structure.
+    directly as an integer or by resolving their name from the indexing structure.
     If the player exists in the database, their data is returned as a JSON object.
     Otherwise, an error message is returned with a 404 status code.
 
@@ -203,9 +197,9 @@ indexbyname: dict = {}
 def get_all_players():
     """
     Fetches all rows from the 'Joueurs' table and generates an index mapping player names
-    to their respective IDs. The main purpose is to handle searcing player by name.
+    to their respective IDs. The main purpose is to handle searching a player by name.
     Dictionary python is actually C-hard code, making passing throughout keys particularly fast.
-    This Dictionary allows to SELECT in the db without using WHERE that could slow th request.
+    This Dictionary allows to SELECT in the db without using WHERE that could slow the request.
 
     This function retrieves all player records from the database, populates an in-memory
     index table based on player names and their IDs, and returns the list of all rows fetched.
@@ -264,7 +258,7 @@ def calculate_elo(current_elo, opponent_elo, score_diff, result, k=1):
     # Handle edge case where score_diff is zero (indicating a draw)
     if score_diff == 0:
         result = 0.5
-        var_elo = k * ((result - expected_result) * score_diff)  # Elo adjustment for draw
+        var_elo = k * (result - expected_result)  # Elo adjustment for draw
         return var_elo
 
     # Elo adjustment based on score difference and result
@@ -444,8 +438,8 @@ def notify_ready():
 
     This endpoint is part of the app's readiness lifecycle. When accessed,
     it performs a series of tasks to confirm that the application is ready
-    for operation, such as flagging the readiness status, logging progress,
-    executing startup routines, and initializing required application data.
+    for operation, such as flagging the readiness status, logging progress and
+    executing startup routines.
 
     :raises Exception: if the startup process fails during execution
     :return: A tuple containing a string message indicating readiness and an
