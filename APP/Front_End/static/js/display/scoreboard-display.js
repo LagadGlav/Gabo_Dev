@@ -36,7 +36,7 @@ function displayPlayerInfo() {
 
     // Ensure the player exists before displaying
     if (!player) {
-        alert("Player not found, it seems you made a mistake");
+        alert("Player not found, please try again.");
         return;
     }
 
@@ -55,8 +55,20 @@ function displayPlayerInfo() {
         <p>Player_id: ${player.joueur_id}</p>
     `;
 
+    // Création of bouton "Last Games"
+    const lastGamesBtn = document.createElement('button');
+    lastGamesBtn.classList.add('last-games-btn');
+    lastGamesBtn.textContent = "Last Games";
+    lastGamesBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Empêche le déclenchement d'autres événements (comme le toggle)
+        window.location.href = `/player/${player.joueur_id}/last-games`;
+    });
+
+    // Add a button after innerHTML
+    newCard.appendChild(lastGamesBtn);
     // Append the new card to the container.
     playerInfoContainer.appendChild(newCard);
+
 }
 
 function closeCard(button) {
@@ -94,6 +106,19 @@ function displayPlayers(players) {
         // Create a new card for each player
         const playerCard = document.createElement('div');
         playerCard.classList.add('player-card');
+
+     // Création of bouton "Last Games"
+        const lastGamesBtn = document.createElement('button');
+        lastGamesBtn.classList.add('last-games-btn');
+        lastGamesBtn.textContent = "Last Games";
+        lastGamesBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Empêche le déclenchement d'autres événements (comme le toggle)
+            window.location.href = `/player/${player.joueur_id}/last-games`;
+        });
+
+
+        // Insert the button at the top of the card
+        playerCard.appendChild(lastGamesBtn);
 
         // Default styling values
         let trophy = "";

@@ -205,6 +205,79 @@ def send_all_players():
     else:
         return jsonify({'Error': 'Players not found'}), 404
 
+@app.route('/api-ap/player/<int:player_id>/last-games', methods=['GET'])
+def last_ten_games(player_id):
+    connection = None
+    cursor = None
+
+    try:
+        connection = get_connexion()
+        cursor = connection.cursor(dictionary=True)
+        cursor.execute(
+            "SELECT partie_id FROM Partie WHERE joueur_id = %s ORDER BY partie_id DESC LIMIT 10",
+            (player_id,)
+        )
+        last_ten_ids = cursor.fetchall()
+        app.logger.info(f"Last ten game ids for player {player_id}: {last_ten_ids}")
+    except Exception as e:
+        app.logger.error(f"Database error: {str(e)}. Error getting last 10 game ids")
+        return jsonify({'error': f'Database error: {str(e)}. Error getting last 10 game ids'}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+    try:
+        connection = get_connexion()
+        cursor = connection.cursor(dictionary=True)
+
+        # Extract the game IDs from last_ten_ids (which you have already retrieved)
+        game_ids = [record['partie_id'] for record in last_ten_ids]
+
+        if not game_ids:
+            app.logger.info("No game IDs found.")
+            return jsonify({})  # Return an empty JSON if there are no game IDs to process
+
+        # Build the IN clause with the correct number of placeholders
+        placeholders = ", ".join(["%s"] * len(game_ids))
+        query = f"""
+            SELECT 
+                p.*, 
+                j.joueur_nom, 
+                j.nombre_partie, 
+                j.score_total, 
+                j.ratio_score, 
+                j.ratio_rang, 
+                j.elo
+            FROM Partie p
+            JOIN Joueurs j ON p.joueur_id = j.joueur_id
+            WHERE p.partie_id IN ({placeholders})
+        """
+        cursor.execute(query, tuple(game_ids))
+        joined_data = cursor.fetchall()
+
+        # Group the results by partie_id
+        games_by_id = {}
+        for record in joined_data:
+            game_id = record['partie_id']
+            if game_id not in games_by_id:
+                games_by_id[game_id] = []
+            games_by_id[game_id].append(record)
+
+        app.logger.info(f"Last ten games for player {player_id}: {games_by_id}")
+        return jsonify(games_by_id)
+
+    except Exception as e:
+        app.logger.error(f"Error retrieving joined game data: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
 def get_all_players():
     """
     Fetches all players from the 'Joueurs' table in the database and sorts them

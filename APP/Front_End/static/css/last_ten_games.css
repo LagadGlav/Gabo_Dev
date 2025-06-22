@@ -1,0 +1,110 @@
+/* Global Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Open Sans', sans-serif;
+  background-color: #013220;  /* Dark green background */
+  color: #fff;
+}
+
+/* Container for the game cards */
+#gamesContainer {
+  max-width: 960px;
+  margin: 20px auto;
+  padding: 20px;
+}
+
+/* Title styling (if needed, your JS inserts the title above #gamesContainer) */
+h1 {
+  text-align: center;
+  color: #fff;
+  margin: 20px 0;
+}
+
+/* Game Group Card */
+.game-group-card {
+  background: linear-gradient(135deg, #66BB6A, #43A047); /* Vibrant green gradient */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+.game-group-card:hover {
+  transform: scale(1.02);
+}
+
+/* Card Header */
+.game-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+.game-card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+/* Toggle Button */
+.toggle-btn {
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+.toggle-btn:hover {
+  background-color: #388E3C;
+}
+
+/* Collapsed Summary Section */
+.game-summary {
+  margin-top: 12px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+.game-summary p {
+  margin: 4px 0;
+  font-size: 1.1rem;
+  text-align: left;
+}
+
+/* Expanded Details Section */
+.game-details {
+  margin-top: 12px;
+  padding: 8px;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.4);
+  padding: 8px 0;
+  font-size: 0.95rem;
+}
+.detail-item:last-child {
+  border-bottom: none;
+}
+.detail-left p {
+  margin: 2px 0;
+}
+.detail-right {
+  text-align: right;
+}
+.big-score {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.big-player-name {
+    font-size: 2em;
+}

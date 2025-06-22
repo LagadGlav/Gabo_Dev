@@ -22,3 +22,7 @@ def ajouter_joueur():
 @main_bp.route('/rules')
 def rules():
     return render_template('rules.html')
+
+@main_bp.route('/player/<int:player_id>/last-games')
+def last_games(player_id):
+    return render_template('last_ten_games.html', player_id=player_id)

@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Gabo{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/last_ten_games.css') }}">
+
+<div class="container">
+    <div id="gamesContainer">Loading games...</div>
+</div>
+
+<!-- Expose the player_id to your JavaScript -->
+<script>
+    const playerId = {{ player_id }};
+</script>
+<script src="{{ url_for('static', filename='js/api/last_ten_games-api.js') }}"></script>
+<script src="{{ url_for('static', filename='js/display/last_ten_games-display.js') }}"></script>
+
+{% endblock %}

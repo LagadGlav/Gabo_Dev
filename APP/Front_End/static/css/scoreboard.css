@@ -27,6 +27,25 @@ body {
     text-align: center;
     margin: 5px;
 }
+
+.last-games-btn {
+    background-color: lightblue;
+    font-size: 1em;
+    position: relative;
+    bottom: 10px;
+    right: 0;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.last-games-btn:hover {
+    background-color: cadetblue;
+}
+
+
 .toggle-btn {
     background-color: #58A745;
     color: #FFF;
@@ -157,6 +176,7 @@ body {
 
 /* Styling for Player Cards following the Graphic Charter */
 .player-card {
+    position: relative;
     background: rgba(255, 255, 255, 0.15);  /* Semi-transparent white */
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 8px;
