@@ -48,17 +48,27 @@ function displayPlayerInfo() {
     newCard.innerHTML = `
         <button class="close-btn" onclick="closeCard(this)">&times;</button>
         <h3>${player.joueur_nom} (${player.elo})</h3>
-        <p>Number of games played: ${player.nombre_partie}</p>
-        <p>Total score: ${player.score_total}</p>
-        <p>Average score per game: ${player.ratio_score}</p>
-        <p>Better ${Number((1-player.ratio_rang)*100)}% of players in game</p>
-        <p>Player_id: ${player.joueur_id}</p>
+        <p class="stat-line">
+          <span class="stat-label">Number of games played</span>
+          <span class="stat-value-player">${Math.round(player.nombre_partie)}</span>
+        </p>
+        <p class="stat-line">
+          <span class="stat-label">Score total</span>
+          <span class="stat-value-player">${Math.round(player.score_total)}</span>
+        </p>
+        <p class="stat-line">
+          <span class="stat-label">Average score per game</span>
+          <span class="stat-value-player">${Math.round(player.ratio_score)}</span>
+        </p>
+        <p>Better ${Math.round((1-player.ratio_rang)*100)}% of players in game
+        </p>
     `;
+
 
     // Création of bouton "Last Games"
     const lastGamesBtn = document.createElement('button');
-    lastGamesBtn.classList.add('last-games-btn');
-    lastGamesBtn.textContent = "Last Games";
+    lastGamesBtn.classList.add('last-games-btn-player');
+    lastGamesBtn.textContent = "Historic";
     lastGamesBtn.addEventListener('click', (e) => {
         e.stopPropagation(); // Empêche le déclenchement d'autres événements (comme le toggle)
         window.location.href = `/player/${player.joueur_id}/last-games`;
@@ -89,102 +99,117 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Display players in the scoreboard container (with id "scrollable")
-function displayPlayers(players) {
-    const scoreboardContainer = document.getElementById('scrollable');
-    // Clear any previous content
-    scoreboardContainer.innerHTML = '';
+    // Display players in the scoreboard container (with id "scrollable")
+    function displayPlayers(players) {
+        const scoreboardContainer = document.getElementById('scrollable');
+        // Clear any previous content
+        scoreboardContainer.innerHTML = '';
 
-    let ranking = 0;
-    players.forEach(player => {
+        let ranking = 0;
+        players.forEach(player => {
+            // Create a player card element for each player
+            const playerCard = document.createElement('div');
+            playerCard.classList.add('player-card'); // For CSS styling if needed
 
-        // Generate a dict that contains players but with their names as key
-        indexByName[player.joueur_nom] = player;
-        indexById[player.joueur_id] = player;
-        ranking++;
+            // Generate indices for players by name and by ID
+            indexByName[player.joueur_nom] = player;
+            indexById[player.joueur_id] = player;
+            ranking++;
 
-        // Create a new card for each player
-        const playerCard = document.createElement('div');
-        playerCard.classList.add('player-card');
+            // Default styling values
+            let trophy = "";
+            let cardScale = 1;
 
-     // Création of bouton "Last Games"
-        const lastGamesBtn = document.createElement('button');
-        lastGamesBtn.classList.add('last-games-btn');
-        lastGamesBtn.textContent = "Last Games";
-        lastGamesBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Empêche le déclenchement d'autres événements (comme le toggle)
-            window.location.href = `/player/${player.joueur_id}/last-games`;
-        });
+            // Customization for the top 3 players using gradient backgrounds
+            if (ranking === 1) {
+                trophy = "🏆"; // Gold trophy
+                cardScale = 1.08;
+                playerCard.style.backgroundColor = "#ffc107";
+                playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #ffc107, #ffca2c)";
+                playerCard.style.backgroundImage = "linear-gradient(135deg, #ffc107, #ffca2c)";
+            } else if (ranking === 2) {
+                trophy = "🥈"; // Silver trophy
+                cardScale = 1.04;
+                playerCard.style.backgroundColor = "#adb5bd";
+                playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #adb5bd, #ced4da)";
+                playerCard.style.backgroundImage = "linear-gradient(135deg, #adb5bd, #ced4da)";
+            } else if (ranking === 3) {
+                trophy = "🥉"; // Bronze trophy
+                cardScale = 1.02;
+                playerCard.style.backgroundColor = "#fd7e14";
+                playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #fd7e14, #e8590c)";
+                playerCard.style.backgroundImage = "linear-gradient(135deg, #fd7e14, #e8590c)";
+            }
 
-
-        // Insert the button at the top of the card
-        playerCard.appendChild(lastGamesBtn);
-
-        // Default styling values
-        let trophy = "";
-        let backgroundColor = "linear-gradient(135deg, #007bff, #0056b3)";
-        let cardScale = 1;
-
-        // Customization for the top 3 players using Bootstrap-inspired colors with vendor prefixes
-        if (ranking === 1) {
-            trophy = "🏆"; // Gold trophy
-            cardScale = 1.08;
-            // Fallback color
-            playerCard.style.backgroundColor = "#ffc107";
-            // Vendor-prefixed gradient
-            playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #ffc107, #ffca2c)";
-            // Standard gradient
-            playerCard.style.backgroundImage = "linear-gradient(135deg, #ffc107, #ffca2c)";
-        } else if (ranking === 2) {
-            trophy = "🥈"; // Silver trophy
-            cardScale = 1.04;
-            playerCard.style.backgroundColor = "#adb5bd";
-            playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #adb5bd, #ced4da)";
-            playerCard.style.backgroundImage = "linear-gradient(135deg, #adb5bd, #ced4da)";
-        } else if (ranking === 3) {
-            trophy = "🥉"; // Bronze trophy
-            cardScale = 1.02;
-            playerCard.style.backgroundColor = "#fd7e14";
-            playerCard.style.backgroundImage = "-webkit-linear-gradient(135deg, #fd7e14, #e8590c)";
-            playerCard.style.backgroundImage = "linear-gradient(135deg, #fd7e14, #e8590c)";
-        }
-
-        if ([1, 2, 3].includes(ranking)) {
-            // Generate the card content
-            playerCard.innerHTML = `
+            // Generate the card content along with details that are initially hidden
+            // Note: The last games button will be appended inside the details container
+    if ([1, 2, 3].includes(ranking)) {
+        playerCard.innerHTML = `
             <h4 style="cursor: pointer;">${trophy} ${player.joueur_nom} (${player.elo})</h4>
             <div class="player-details hidden">
-                <p>Number of games played: ${player.nombre_partie}</p>
-                <p>Score total: ${player.score_total}</p>
-                <p>Average score per game: ${player.ratio_score}</p>
-                <p>Better ${(1-player.ratio_rang)*100}% of players in game</p>
+                <p class="stat-line">
+                  <span class="stat-label">Number of games played</span>
+                  <span class="stat-value-player">${Math.round(player.nombre_partie)}</span>
+                </p>
+                <p class="stat-line">
+                  <span class="stat-label">Score total</span>
+                  <span class="stat-value-player">${Math.round(player.score_total)}</span>
+                </p>
+                <p class="stat-line">
+                  <span class="stat-label">Average score per game</span>
+                  <span class="stat-value-player">${Math.round(player.ratio_score)}</span>
+                </p>
+           <p>Better ${Math.round((1-player.ratio_rang)*100)}% of players in game</p>
             </div>
         `;
-        } else {
-            // Generate the card content
-            playerCard.innerHTML = `
-                <h4 style="cursor: pointer;">${ranking} ${player.joueur_nom} (${player.elo})</h4>
-                <div class="player-details hidden">
-                <p>Number of games played: ${player.nombre_partie}</p>
-                <p>Score total: ${player.score_total}</p>
-                <p>Average score per game: ${player.ratio_score}</p>
-                <p>Better ${(1-player.ratio_rang)*100}% of players in game</p>
-                </div>
-            `;
-        }
+    } else {
+        playerCard.innerHTML = `
+            <h4 style="cursor: pointer;">${ranking} ${player.joueur_nom} (${player.elo})</h4>
+            <div class="player-details hidden">
+                <p class="stat-line">
+                  <span class="stat-label">Number of games played</span>
+                  <span class="stat-value">${Math.round(player.nombre_partie)}</span>
+                </p>
+                <p class="stat-line">
+                  <span class="stat-label">Score total</span>
+                  <span class="stat-value">${Math.round(player.score_total)}</span>
+                </p>
+                <p class="stat-line">
+                  <span class="stat-label">Average score per game</span>
+                  <span class="stat-value">${Math.round(player.ratio_score)}</span>
+                </p>
+           <p>Better ${Math.round((1-player.ratio_rang)*100)}% of players in game</p>
+            </div>
+        `;
+    }
 
-        // Append the new card to the scoreboard container
+        // Grab the details container from the player card
+        const detailsContainer = playerCard.querySelector('.player-details');
+
+        // Create the "Last Games" button and append it into the details container
+        const lastGamesBtn = document.createElement('button');
+        lastGamesBtn.classList.add('last-games-btn-scoreboard');
+        lastGamesBtn.textContent = "Historic";
+        lastGamesBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent toggling the details when clicking the button
+            window.location.href = `/player/${player.joueur_id}/last-games`;
+        });
+        // Append the button inside the details container so it is hidden when collapsed
+        detailsContainer.appendChild(lastGamesBtn);
+
+        // Append the card to the scoreboard container
         scoreboardContainer.appendChild(playerCard);
 
-        // Make the entire card clickable to toggle the details
+        // Make the entire card clickable to toggle the details container visibility
         playerCard.addEventListener('click', () => {
-            const details = playerCard.querySelector('.player-details');
-            details.classList.toggle('hidden');
+            detailsContainer.classList.toggle('hidden');
         });
     });
     console.log(indexById);
     console.log(indexByName);
 }
+
+
 
 // On page load
 document.addEventListener('DOMContentLoaded', () => {

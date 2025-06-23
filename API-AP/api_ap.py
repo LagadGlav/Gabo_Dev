@@ -248,11 +248,11 @@ def last_ten_games(player_id):
                 j.nombre_partie, 
                 j.score_total, 
                 j.ratio_score, 
-                j.ratio_rang, 
-                j.elo
+                j.ratio_rang
             FROM Partie p
             JOIN Joueurs j ON p.joueur_id = j.joueur_id
             WHERE p.partie_id IN ({placeholders})
+            ORDER BY p.partie_id DESC 
         """
         cursor.execute(query, tuple(game_ids))
         joined_data = cursor.fetchall()

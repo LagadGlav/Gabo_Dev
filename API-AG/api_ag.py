@@ -98,17 +98,18 @@ class Game:
     Methods:
         __str__: Returns a formatted string describing the game instance in the queue.
     """
-    def __init__(self, id_game, nb_joueurs, id_joueur, score, rang, var_elo):
+    def __init__(self, id_game, nb_joueurs, id_joueur, score, rang, var_elo, former_elo):
         self.score = score  # Player's score in the game
         self.id_game = id_game  # Game session ID
         self.nb_joueurs = nb_joueurs  # Total number of players in the game
         self.id_joueur = id_joueur  # ID of the player participating
         self.rang = rang  # Player's rank in the game
         self.var_elo = var_elo  # ELO variation due to the game
+        self.former_elo = former_elo
 
     def __str__(self):
         # Custom string representation of the game instance
-        return f"Partie in queue({[(self.id_game, self.nb_joueurs, self.id_joueur, self.score, self.rang, self.var_elo)]})"
+        return f"Partie in queue({[(self.id_game, self.nb_joueurs, self.id_joueur, self.score, self.rang, self.var_elo, self.former_elo)]})"
 
 
 # Function to insert game data into the database
@@ -133,11 +134,11 @@ def send_to_database(p):
 
         # SQL query for inserting game session data
         query = """
-            INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang, var_elo)
-            VALUES (%s, %s, %s, %s, %s, %s)
+            INSERT INTO Partie (partie_id, nombre_joueur, joueur_id, joueur_score, rang, var_elo, former_elo)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
         """
         # Prepare data for the query
-        data = (p.id_game, p.nb_joueurs, p.id_joueur, p.score, p.rang, p.var_elo)
+        data = (p.id_game, p.nb_joueurs, p.id_joueur, p.score, p.rang, p.var_elo, p.former_elo)
         cursor.execute(query, data)  # Execute the query with the data
         connection.commit()  # Commit the transaction
     except Error as e:  # Handle MySQL errors
@@ -300,7 +301,7 @@ def get_var_elo(table):
                 # Update Elo variations based on game result
                 var_elo[i] += calculate_elo(current_elo, opponent_elo, score_diff, 1)
                 var_elo[j] += calculate_elo(current_elo, opponent_elo, score_diff, 0)
-    return var_elo
+    return var_elo, elo
 
 
 def insertion(table, id_temp):
@@ -323,15 +324,19 @@ def insertion(table, id_temp):
     :rtype: bool
     :raises Error: If an issue occurs during the queue insertion process.
     """
-    var_elo = get_var_elo(table)  # Compute Elo variations
+    var_elo, current_elo = get_var_elo(table)  # Compute Elo variations
+
+    app.logger.info(f"var_elo {var_elo}")
+    app.logger.info(f"current_elo {current_elo}")
 
     for i in range(0, len(table[0])):
         id_joueur = table[0][i]
         score = table[1][i]
         nb_joueurs = len(table[0])  # Total number of players
         rang = i + 1  # Rank based on score
-        var_elo_ = math.floor(var_elo[i] / 10)  # Adjust Elo variation
-        p_received = Game(id_temp, nb_joueurs, id_joueur, score, rang, var_elo_)
+        adjusted_elo = math.floor(var_elo[i] / 10)  # Adjust Elo variation
+        elo = current_elo[i]
+        p_received = Game(id_temp, nb_joueurs, id_joueur, score, rang, adjusted_elo, elo)
 
         with lock:  # Ensure thread-safe access to the queue
             try:

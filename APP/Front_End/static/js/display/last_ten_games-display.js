@@ -1,13 +1,15 @@
 document.addEventListener("DOMContentLoaded", async () => {
   // Create and insert a title element above the games container.
   // Assume that "playerName" is a global variable injected into your template.
+
+
   const title = document.createElement("h1");
-  title.textContent = `Last 10 Games`;
+  title.textContent = `Historic` + ` ${playerId}` ;
   title.style.textAlign = "center";
   title.style.color = "#fff";
   title.style.margin = "20px 0";
 
-  // Get the container for the cards.
+      // Get the container for the cards.
   const gamesContainer = document.getElementById("gamesContainer");
   // Insert the title above the games container.
   gamesContainer.insertAdjacentElement("beforebegin", title);
@@ -89,18 +91,25 @@ function renderGroupedGameCards(gamesData) {
       const detailItem = document.createElement("div");
       detailItem.classList.add("detail-item");
 
-      // Build a flex container: left part for details; right part shows the score in bigger font.
-      detailItem.innerHTML = `
-        <div class="detail-left">
-          <p style="font-size: 2em;"> ${record.joueur_nom || 'N/A'}</p>
-          <p>${record.elo || 'N/A'} (${typeof record.var_elo !== "undefined"
-            ? (record.var_elo >= 0 ? '+' : '') + record.var_elo
-            : 'N/A'})</p>
-        </div>
+    // Build a flex container: left part for details; right part shows the score in bigger font.
+    detailItem.innerHTML = `
+      <div class="detail-left">
+        <p style="font-size: 2em;"> ${record.joueur_nom || 'N/A'}</p>
+        <p>
+          ${record.former_elo || 'N/A'}
+          ${
+            typeof record.var_elo !== "undefined"
+              ? record.var_elo >= 0
+                ? `<span style="color: green;">&#x2191; ${record.var_elo}</span>`
+                : `<span style="color: red;">&#x2193; ${Math.abs(record.var_elo)}</span>`
+              : 'N/A'
+          }
+        </p>
+      </div>
 
-        <div class="detail-right">
-          <p class="big-score">${record.joueur_score || 'N/A'}</p>
-        </div>
+      <div class="detail-right">
+        <p class="big-score">${record.joueur_score || 'N/A'}</p>
+      </div>
       `;
       detailsContainer.appendChild(detailItem);
     });

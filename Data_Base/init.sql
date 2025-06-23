@@ -23,6 +23,7 @@ CREATE TABLE Partie (
                         joueur_score INT,
                         rang INT,
                         var_elo FLOAT,
+                        former_elo INT,
                         date_partie DATETIME DEFAULT CURRENT_TIMESTAMP,
                         CONSTRAINT id PRIMARY KEY (partie_id, joueur_id),
                         FOREIGN KEY (joueur_id) REFERENCES Joueurs(joueur_id) ON DELETE CASCADE

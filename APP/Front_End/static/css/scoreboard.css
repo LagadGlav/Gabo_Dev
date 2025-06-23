@@ -28,12 +28,62 @@ body {
     margin: 5px;
 }
 
-.last-games-btn {
+.stat-line {
+    border: none;
+    border-radius: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 3px 0;
+}
+
+.stat-label {
+  /* Any styling for the label text (optional) */
+}
+
+.stat-value {
+  background-color: darkblue; /* Change or lighten/darken as needed */
+    color: #FFFFFF;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: right;
+}
+
+.stat-value-player {
+  background-color: lightyellow; /* Change or lighten/darken as needed */
+    color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-weight: bold;
+  min-width: 40px;
+  text-align: right;
+}
+
+.last-games-btn-scoreboard {
     background-color: lightblue;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 10px;
+    margin-top: 10px;
     font-size: 1em;
-    position: relative;
-    bottom: 10px;
-    right: 0;
+    color: #333;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    cursor: pointer;
+}
+
+.last-games-btn-player {
+    background-color: lightyellow;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
+    margin-bottom: 10px;
+    margin-top: 10px;
+    font-size: 1em;
     color: #333;
     border: none;
     border-radius: 8px;
