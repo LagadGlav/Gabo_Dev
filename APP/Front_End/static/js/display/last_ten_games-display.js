@@ -1,13 +1,11 @@
-document.addEventListener("DOMContentLoaded", async () => {
-  // Create and insert a title element above the games container.
-  // Assume that "playerName" is a global variable injected into your template.
-
-
   const title = document.createElement("h1");
   title.textContent = `Historic` + ` ${playerId}` ;
   title.style.textAlign = "center";
   title.style.color = "#fff";
   title.style.margin = "20px 0";
+
+document.addEventListener("DOMContentLoaded", async () => {
+  // Create and insert a title element above the games container.
 
       // Get the container for the cards.
   const gamesContainer = document.getElementById("gamesContainer");
@@ -16,9 +14,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   // When the DOM is loaded, fetch the game data using your API call.
   const gamesData = await fetchLastTenGames(playerId);
+  const players_info = await fetchPlayerInfo(playerId);
   renderGroupedGameCards(gamesData);
 });
 
+function updatetitle(player) {
+    title.textContent = `Historique` + ` ${player.joueur_nom}` ;
+}
 /**
  * Renders an expandable card per game group.
  * Collapsed view shows the game date and a summary of the top three players with trophy icons.
