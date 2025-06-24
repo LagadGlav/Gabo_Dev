@@ -28,12 +28,14 @@ function renderGroupedGameCards(gamesData) {
   const scoreboardContainer = document.getElementById("gamesContainer");
   scoreboardContainer.innerHTML = ""; // Clear previous content
 
+  const sortedGamesIds = Object.keys(gamesData).sort((a, b) => b - a);
+
   // Iterate over each game ID in the gamesData object.
-  for (const gameId in gamesData) {
+  for (const gameId of sortedGamesIds) {
     const gameRecords = gamesData[gameId];
     if (!gameRecords || gameRecords.length === 0) continue; // Skip empty groups
 
-    // Sort the game records by rank (ascending; 1 is highest).
+    // Sort the game records by rank (ascending; 1 is lowest).
     gameRecords.sort((a, b) => a.rang - b.rang);
 
     // Create the container (card) for this game group.
@@ -85,6 +87,8 @@ function renderGroupedGameCards(gamesData) {
     const detailsContainer = document.createElement("div");
     detailsContainer.classList.add("game-details");
     detailsContainer.style.display = "none";
+
+
 
     // For each record, create a detail item (ordered by rank).
     gameRecords.forEach((record) => {

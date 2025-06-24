@@ -214,7 +214,7 @@ def last_ten_games(player_id):
         connection = get_connexion()
         cursor = connection.cursor(dictionary=True)
         cursor.execute(
-            "SELECT partie_id FROM Partie WHERE joueur_id = %s ORDER BY partie_id DESC LIMIT 10",
+            "SELECT partie_id FROM Partie WHERE joueur_id = %s ORDER BY partie_id ASC",
             (player_id,)
         )
         last_ten_ids = cursor.fetchall()
@@ -252,7 +252,7 @@ def last_ten_games(player_id):
             FROM Partie p
             JOIN Joueurs j ON p.joueur_id = j.joueur_id
             WHERE p.partie_id IN ({placeholders})
-            ORDER BY p.partie_id DESC 
+            ORDER BY p.date_partie ASC
         """
         cursor.execute(query, tuple(game_ids))
         joined_data = cursor.fetchall()
