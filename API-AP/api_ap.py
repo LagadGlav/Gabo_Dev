@@ -107,17 +107,23 @@ def save_player():
         HTTP status code.
     :rtype: Werkzeug.wrappers.response.Response
     """
+    global id
+
     try:
         data = request.get_json()
-        if not data or 'playerId' not in data or 'playername' not in data:
+        if 'playername' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
 
         # Validate and sanitize input
         try:
-            player_id, player_name = data['playerId'], data['playername']
+            player_name = data['playername']
         except NetworkError as e:
             app.logger.error(f"Network error: {e}")
             return jsonify({'error': str(e)}), 400
+
+        player_id = id
+
+        id += 1
 
         # Try saving to the database
         send_to_database_j(player_id, player_name)
@@ -353,6 +359,28 @@ def notify_ready():
     app.logger.info("Service started. Ready to serve requests.")
     return jsonify({"message": "API-AP is ready"}), 200
 
+def get_nb_players_in_db():
+    """
+    Retrieve the maximum game ID from the database.
+
+    Returns:
+        int: Maximum game ID if found, otherwise returns 1.
+    """
+    connection = get_connexion()
+    cursor = connection.cursor(dictionary=True)
+    cursor.execute("SELECT DISTINCT MAX(joueur_id) FROM Joueurs")
+    id = cursor.fetchone()
+    cursor.close()
+    connection.close()
+
+    if id:
+        pass
+    else:
+        id = 1
+
+    return id
+
+id = 0
 def start_up():
     """
     Initiates the startup process, including attempting to connect to the database.
@@ -365,6 +393,8 @@ def start_up():
     :raises DatabaseError: If the connection to the database fails.
     :return: None
     """
+    global id
+
     time.sleep(1)
     app.logger.info("Connecting to database...")
     try:
@@ -373,6 +403,11 @@ def start_up():
     except:
         app.logger.info("Impossible to connect, start_up phase failed")
         raise DatabaseError("Connexion failed.")
+    id = get_nb_players_in_db()  # Retrieve maximum game ID
+    id = id['MAX(joueur_id)'] + 1
+
+    app.logger.info("Database initialized.")
+
 
 
 if __name__ == "__main__":
