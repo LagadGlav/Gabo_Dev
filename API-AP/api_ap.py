@@ -8,7 +8,7 @@ from webbrowser import Error
 
 
 sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion, notify_service
+from util import connect_to_database_interro, get_connexion, notify_service, build_index_byname
 from exceptions import DatabaseError, NetworkError, StartUpError
 
 API_AP_URL = "http://api-add_player:8010"
@@ -125,6 +125,11 @@ def save_player():
 
         id += 1
 
+        if player_name in indexbyname:
+            return jsonify({'error': 'Player name already taken'}), 409
+
+        indexbyname[player_name] = player_id
+
         # Try saving to the database
         send_to_database_j(player_id, player_name)
 
@@ -134,13 +139,13 @@ def save_player():
             return jsonify({'error': str(e)}), 400
 
         return jsonify({
-            'message': 'Player profile saved successfully',
+            'message': 'New player saved successfully',
             'data': {'id': player_id, 'name': player_name}
         }), 201
 
     except DatabaseError as e:
         if 'Duplicate entry' in str(e):
-            return jsonify({'error': 'Player ID already exists'}), 409
+            return jsonify({'error': 'Player ID already exists, my bad'}), 409
         app.logger.error(f"Database error: {e}")
         return jsonify({'error': 'Database error occurred'}), 500
     except Exception as e:
@@ -381,6 +386,7 @@ def get_nb_players_in_db():
     return id
 
 id = 0
+indexbyname: dict = {}
 def start_up():
     """
     Initiates the startup process, including attempting to connect to the database.
@@ -393,7 +399,7 @@ def start_up():
     :raises DatabaseError: If the connection to the database fails.
     :return: None
     """
-    global id
+    global id, indexbyname
 
     time.sleep(1)
     app.logger.info("Connecting to database...")
@@ -407,6 +413,17 @@ def start_up():
     id = id['MAX(joueur_id)'] + 1
 
     app.logger.info("Database initialized.")
+
+    app.logger.info("Building index by name...")
+
+    indexbyname = build_index_byname()
+
+    if indexbyname:
+        app.logger.info(f"Index by name built.")
+    else:
+        app.logger.info("Index by name not built.")
+
+    return True
 
 
 

@@ -49,6 +49,51 @@ def get_connexion():
     except mysql.connector.Error as e:
         raise mysql.connector.Error(f"Failed to connect to database: {e}")
 
+def build_index_byname():
+    """
+    Fetches all rows from the 'Joueurs' table and generates an index mapping player names
+    to their respective IDs. The main purpose is to handle searcing player by name.
+    Dictionary python is actually C-hard code, making passing throughout keys particularly fast.
+    This Dictionary allows to SELECT in the db without using WHERE that could slow th request.
+
+    This function retrieves all player records from the database, populates an in-memory
+    index table based on player names and their IDs, and returns the list of all rows fetched.
+
+    :raises Error: If an error occurs during database operations.
+    :returns: List of tuples where each tuple contains player ID and player name.
+    :rtype: list
+    """
+    indexbyname = {}
+    logging.info(f"Generating new index table...")
+    connection = None
+    try:
+        # Get a connection from the pool
+        connection = get_connexion()
+        cursor = connection.cursor()
+
+        # Query to fetch all rows from 'Joueurs'
+        query = "SELECT joueur_id, joueur_nom FROM Joueurs"
+        cursor.execute(query)
+        rows = cursor.fetchall()  # Fetch all rows
+
+        if rows is None:
+            return None
+
+    except Exception as e:
+        logging.info(f"Erreur lors de la récupération des données : {e}")
+        return None
+
+    finally:
+        if connection:
+            connection.close()  # Ensure the connection is closed after use
+
+    for player in rows:
+        indexbyname[f"{player[1]}"] = player[0]
+
+    logging.info(f"New index table {indexbyname}")
+
+    return indexbyname
+
 
 def connect_to_database_interro():
     """
