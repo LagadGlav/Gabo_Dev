@@ -3,7 +3,6 @@
 {% block title %}Gabo{% endblock %}
 
 {% block content %}
-<h1>Add a game</h1>
 
 <div id="new_game">
     <button type="button" onclick="openNewGameForm()">New Game</button>
@@ -11,9 +10,9 @@
 
 <div id="newGameForm" class="hidden">
     <button type="button" onclick="resetGameForm()">Reset table</button>
-    <label for="playerId">ID / Nom Joueur :</label>
     <input type="text" id="playerId" name="playerId" required>
     <button type="button" onclick="fetchPlayerInfo()">Add a player</button>
+        <button type="button" onclick="removeLastPlayerFromTable()">Remove last player</button>
 </div>
 
 <div id="table" class="hidden">
@@ -22,7 +21,6 @@
             <thead>
             <tr>
                 <th>Player</th>
-                <th>Stats(ELO)</th>
                 <th>Score</th>
             </tr>
             </thead>

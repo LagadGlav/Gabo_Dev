@@ -44,7 +44,7 @@ function sendTableToServer() {
 
         if (player) {
             const cells = row.getElementsByTagName("td");
-            const scoreInput = cells[2].querySelector("input");
+            const scoreInput = cells[1].querySelector("input");
 
             idsRow.push(player.joueur_id);
             eloRow.push(player.elo);
@@ -66,8 +66,10 @@ function sendTableToServer() {
         .then(response => response.json())
         .then(data => {
             alert(data.message);
+            resetGameForm();
         })
         .catch(error => {
+            alert("Erreur lors de l'envoi du tableau : " + error);
             console.error("Erreur lors de l'envoi du tableau :", error);
         });
 }

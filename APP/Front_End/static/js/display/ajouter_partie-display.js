@@ -1,6 +1,5 @@
 function openNewGameForm() {
     document.getElementById('newGameForm').classList.remove('hidden');
-    document.getElementById('table').classList.remove('hidden');
     document.getElementById('new_game').classList.add('hidden');
 }
 
@@ -15,17 +14,47 @@ function resetGameForm() {
 }
 
 function addPlayerToTable(player) {
-    const tableBody = document.getElementById('savedTable').getElementsByTagName('tbody')[0];
-    const newRow = tableBody.insertRow();
 
-    // Insérer les cellules dans l'ordre correct
-    const playerNameCell = newRow.insertCell(0);
-    const playerInfoCell = newRow.insertCell(1);
-    const scoreCell = newRow.insertCell(2);
+  document.getElementById('table').classList.remove('hidden');
 
-    // Remplir les cellules avec les informations du joueur
-    playerNameCell.innerText = `${player.joueur_nom} (${player.elo})`;
-    const playerInfo = ` - Parties: ${player.nombre_partie}, Score Total: ${player.score_total}, Ratio Score: ${player.ratio_score}, Ratio Rang: ${player.ratio_rang}`;
-    playerInfoCell.innerText = playerInfo;
-    scoreCell.innerHTML = `<input type="number" name="playerScore${player.joueur_id}" required>`;
+  const tbody = document
+    .getElementById('savedTable')
+    .getElementsByTagName('tbody')[0];
+
+  if (tbody.querySelector(`tr[data-player-id="${player.joueur_id}"]`)) {
+    alert("Déjà dans la partie !");
+    return;
+  }
+
+  const newRow = tbody.insertRow();
+  newRow.dataset.playerId = player.joueur_id;
+
+  // 1) Nom
+  const nameCell  = newRow.insertCell(0);
+  // 2) Score (on passe à index 1 puisque l'infoCell est supprimée)
+  const scoreCell = newRow.insertCell(1);
+
+  nameCell.innerText = `${player.joueur_nom} (${player.elo})`;
+  scoreCell.innerHTML =
+    `<input type="number" name="playerScore${player.joueur_id}" required>`;
+}
+
+
+function removeLastPlayerFromTable() {
+  const tbody = document
+    .getElementById('savedTable')
+    .getElementsByTagName('tbody')[0];
+
+  const rowCount = tbody.rows.length;
+  if (rowCount === 0) {
+    console.warn('Aucune ligne à supprimer');
+    return;
+  }
+
+  // supprime la dernière ligne
+  tbody.deleteRow(rowCount - 1);
+
+  if (rowCount === 1) {
+      document.getElementById('table').classList.add('hidden');
+  }
 }
