@@ -16,12 +16,12 @@ services:
 
   api-add_player:
     build:
-      context: ./API-AP
+      context: ./API_AP
       dockerfile: Dockerfile
     env_file:
       - .env
     volumes:
-      - ./API-AP:/API-AP
+      - ./API_AP:/API_AP
       - ./utils:/utils
     expose:
       - "8010"

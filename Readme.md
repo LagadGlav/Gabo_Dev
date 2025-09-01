@@ -18,7 +18,7 @@ Main goals:
 ![Global architecture](docs/architecture.png)
 
 - **API-AG**: Game management service.  
-- **API-AP**: Player management service.  
+- **API_AP**: Player management service.  
 - **API-RULES**: Game rules service that fetch from a kaggle dataset.  
 - **Backup Service**: Backup and restore service.  
 - **Database**: Persistent storage (MySQL).  

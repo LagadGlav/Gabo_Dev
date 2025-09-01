@@ -178,7 +178,7 @@ if __name__ == "__main__":
     # Notify the Flask service, ready to run
     notify_service(FLASK_URL)
 
-    # Notify the API-AP service, ready to run
+    # Notify the API_AP service, ready to run
     notify_service(API_AP_URL)
 
     # Notify the API-AG service, ready to run
