@@ -171,7 +171,7 @@ def insertion(table):
 
 # --- Jeu de Test Complet ---
 
-def test_full_flow(num_players):
+def est_full_flow(num_players):
     """
     Crée un jeu de test avec 'num_players' joueurs ayant des scores et ELO variés.
     On simule l'ensemble du processus :

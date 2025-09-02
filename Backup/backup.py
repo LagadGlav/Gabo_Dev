@@ -15,9 +15,8 @@ try:
 except:
     logging.info("DOTENV NOT LOADED")
 
-sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion, notify_service
-from exceptions import DatabaseError, NetworkError, StartUpError
+from utils.util import connect_to_database_interro, get_connexion, notify_service, build_index_byname
+from utils.exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configure logging
 logging.basicConfig(
@@ -178,7 +177,7 @@ if __name__ == "__main__":
     # Notify the Flask service, ready to run
     notify_service(FLASK_URL)
 
-    # Notify the API-AP service, ready to run
+    # Notify the API_AP service, ready to run
     notify_service(API_AP_URL)
 
     # Notify the API-AG service, ready to run

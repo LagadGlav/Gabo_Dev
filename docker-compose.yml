@@ -16,13 +16,13 @@ services:
 
   api-add_player:
     build:
-      context: ./API-AP
+      context: ./API_AP
       dockerfile: Dockerfile
     env_file:
       - .env
     volumes:
-      - ./API-AP:/API-AP
-      - ./utils:/utils
+      - ./API_AP:/API_AP
+      - ./utils:/API_AP/utils
     expose:
       - "8010"
     networks:
@@ -38,7 +38,7 @@ services:
       - .env
     volumes:
       - ./API-AG:/API-AG
-      - ./utils:/utils
+      - ./utils:/API-AG/utils
     expose:
       - "8020"
     networks:
@@ -52,7 +52,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./API-RULES:/API-RULES
-      - ./utils:/utils
+      - ./utils:/API-RULES/utils
       - ./kaggle/kaggle.json:/root/.config/kaggle/kaggle.json:ro
     ports:
       - "8030"
@@ -105,7 +105,7 @@ services:
       - .env
     volumes:
       - ./Backup/back_up:/Backup/back_up
-      - ./utils:/utils
+      - ./utils:/Backup/utils
     ports:
       - "8080:8080"
     networks:

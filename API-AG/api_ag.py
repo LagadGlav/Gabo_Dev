@@ -15,9 +15,8 @@ import os, sys  # OS-level operations for file paths or environmental variables
 # Initialize threading lock for thread-safe operations
 lock = Lock()
 
-sys.path.append("/utils")
-from util import connect_to_database_interro, get_connexion
-from exceptions import DatabaseError, NetworkError, StartUpError
+from utils.util import connect_to_database_interro, get_connexion, notify_service, build_index_byname
+from utils.exceptions import DatabaseError, NetworkError, StartUpError
 
 # Configuration de Flask
 app = Flask(__name__)
@@ -469,7 +468,7 @@ def notify_ready():
         return jsonify({"message": "Start up failed"}), 500
 
     app.logger.info("Service started. Ready to serve requests.")
-    return jsonify({"message": "API-AP is ready"}), 200
+    return jsonify({"message": "API_AP is ready"}), 200
 
 @app.route('/patch_mapping_index', methods=['PATCH'])
 def patch_mapping_index():

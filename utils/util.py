@@ -12,16 +12,13 @@ try:
 except:
     logging.info("DOTENV NOT LOADED")
 
-sys.path.append("/utils")
-from exceptions import DatabaseError, NetworkError, StartUpError
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,  # Set the level to INFO (adjust as needed: DEBUG, WARNING, ERROR)
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
 
-sys.path.append("/utils")
-from exceptions import DatabaseError, NetworkError, StartUpError
+from utils.exceptions import DatabaseError, NetworkError, StartUpError
 
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = int(os.getenv("DB_PORT"))
