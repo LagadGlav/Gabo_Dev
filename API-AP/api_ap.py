@@ -362,7 +362,7 @@ def notify_ready():
         return jsonify({"message": "Start up failed"}), 500
 
     app.logger.info("Service started. Ready to serve requests.")
-    return jsonify({"message": "API-AP is ready"}), 200
+    return jsonify({"message": "API_AP is ready"}), 200
 
 def get_nb_players_in_db():
     """
