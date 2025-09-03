@@ -1,47 +1,66 @@
 import pytest
 import sys, os
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from API_AP.api_ap import app
 from API_AP import api_ap
 
+
+# --- FIXTURES ---
+
 @pytest.fixture
 def client():
-    """Client test Flask"""
+    """Client de test Flask"""
     with app.test_client() as client:
         yield client
 
-@pytest.fixture
-def num_players():
-    return 4
 
-class FakeConnection:
-    def __init__(self, return_value=None):
-        self.return_value = return_value
-
-    def cursor(self, **kwargs):
-        return self
-
+class FakeMySQLCursor:
+    """Simule un curseur MySQL avec support des options dictionary/prepared."""
+    def __init__(self, data=None):
+        self._data = data or []
     def execute(self, *args, **kwargs):
         pass
-
     def fetchone(self):
-        return self.return_value if isinstance(self.return_value, dict) else None
-
+        return self._data[0] if self._data else None
     def fetchall(self):
-        return self.return_value if isinstance(self.return_value, list) else None
-
+        return self._data
     def close(self):
         pass
 
+class FakeMySQLConnection:
+    """Simule une connexion MySQL compatible avec mysql.connector.connect()."""
+    def __init__(self, data=None):
+        self._data = data
+    def cursor(self, *args, **kwargs):
+        # On accepte dictionary=True, prepared=True, etc.
+        return FakeMySQLCursor(self._data)
+    def commit(self):
+        # Simule la validation d'une transaction
+        pass
+    def rollback(self):
+        # Simule l'annulation d'une transaction
+        pass
+    def close(self):
+        pass
+@pytest.fixture
+def mysql_conn_with_table():
+    """
+    Simule une base MySQL avec la table Joueurs et une donnée initiale.
+    """
+    table = [{"joueur_id": 1, "joueur_nom": "Initial"}]
+    conn = FakeMySQLConnection(table)
+    conn._table_data = table  # pour inspection dans les tests
+    return conn
 
-# --- TESTS EXISTANTS ADAPTÉS ---
 
-def test_save_player_success(monkeypatch, client):
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection())
-    monkeypatch.setattr(api_ap, "send_to_database_j", lambda pid, pname: True)
+# --- TESTS FONCTIONNELS ---
+
+def test_save_player_success(monkeypatch, client, mysql_conn_with_table):
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: mysql_conn_with_table)
     monkeypatch.setattr(api_ap, "patch_mapping_index", lambda pid, pname: True)
     monkeypatch.setattr(api_ap, "indexbyname", {})
-    monkeypatch.setattr(api_ap, "id", 1)
+    monkeypatch.setattr(api_ap, "id", 2)
 
     resp = client.post("/api-ap/save_player", json={"playername": "Alice"})
     assert resp.status_code == 201
@@ -56,8 +75,8 @@ def test_save_player_missing_name(client):
 
 
 def test_get_player_info_found(monkeypatch, client):
-    fake_data = {"joueur_id": 1, "joueur_nom": "Alice"}
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection(fake_data))
+    fake_data = [{"joueur_id": 1, "joueur_nom": "Alice"}]
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeMySQLConnection(fake_data))
 
     resp = client.get("/api-ap/get_player_info?playerId=1")
     assert resp.status_code == 200
@@ -65,7 +84,7 @@ def test_get_player_info_found(monkeypatch, client):
 
 
 def test_get_player_info_not_found(monkeypatch, client):
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection(None))
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeMySQLConnection([]))
 
     resp = client.get("/api-ap/get_player_info?playerId=99")
     assert resp.status_code == 404
@@ -73,15 +92,16 @@ def test_get_player_info_not_found(monkeypatch, client):
 
 def test_get_all_players_success(monkeypatch, client):
     fake_players = [{"joueur_id": 1, "joueur_nom": "Alice", "elo": 1500}]
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection(fake_players))
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeMySQLConnection(fake_players))
 
     resp = client.get("/api-ap/get_all_players")
     assert resp.status_code == 200
     assert isinstance(resp.get_json(), list)
+    assert resp.get_json()[0]["joueur_nom"] == "Alice"
 
 
 def test_get_all_players_not_found(monkeypatch, client):
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection(None))
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeMySQLConnection([]))
     monkeypatch.setattr(api_ap, "get_all_players", lambda: None)
 
     resp = client.get("/api-ap/get_all_players")
@@ -89,7 +109,7 @@ def test_get_all_players_not_found(monkeypatch, client):
 
 
 def test_last_ten_games_no_games(monkeypatch, client):
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection([]))
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeMySQLConnection([]))
 
     resp = client.get("/api-ap/player/1/last-games")
     assert resp.status_code == 200
@@ -97,17 +117,13 @@ def test_last_ten_games_no_games(monkeypatch, client):
 
 
 def test_last_ten_games_with_data(monkeypatch, client):
-    first_conn = FakeConnection([{"partie_id": 1}, {"partie_id": 2}])
-    joined_data = [
+    first_conn = FakeMySQLConnection([{"partie_id": 1}, {"partie_id": 2}])
+    second_conn = FakeMySQLConnection([
         {"partie_id": 1, "joueur_nom": "Alice"},
         {"partie_id": 2, "joueur_nom": "Alice"}
-    ]
-    calls = [first_conn, FakeConnection(joined_data)]
-
-    def fake_get_connexion():
-        return calls.pop(0)
-
-    monkeypatch.setattr(api_ap, "get_connexion", fake_get_connexion)
+    ])
+    calls = [first_conn, second_conn]
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: calls.pop(0))
 
     resp = client.get("/api-ap/player/1/last-games")
     assert resp.status_code == 200
@@ -125,41 +141,44 @@ def test_ready_endpoint_success(monkeypatch, client):
     assert "ready" in resp.get_json()["message"].lower()
 
 
-# --- TESTS INJECTION SQL ---
+# --- TESTS INJECTION SQL RENFORCÉS ---
 
 @pytest.mark.parametrize("payload", [
-    {"playername": "Robert'); DROP TABLE joueurs;--"},
+    {"playername": "Robert'); DROP TABLE Joueurs;--"},
     {"playername": "' OR '1'='1"},
-    {"playername": "Alice; DELETE FROM joueurs WHERE 'a'='a"}
+    {"playername": "Alice; DELETE FROM Joueurs WHERE 'a'='a"}
 ])
-def test_sql_injection_save_player(monkeypatch, client, payload):
+def test_sql_injection_save_player(monkeypatch, client, mysql_conn_with_table, payload):
     """
-    Vérifie que l'API ne casse pas ou n'exécute pas de SQL malveillant.
+    Vérifie que l'API échappe ou rejette les entrées malveillantes
+    et que la table/données restent intactes.
     """
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection())
-    monkeypatch.setattr(api_ap, "send_to_database_j", lambda pid, pname: True)
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: mysql_conn_with_table)
     monkeypatch.setattr(api_ap, "patch_mapping_index", lambda pid, pname: True)
     monkeypatch.setattr(api_ap, "indexbyname", {})
-    monkeypatch.setattr(api_ap, "id", 1)
+    monkeypatch.setattr(api_ap, "id", 2)
 
     resp = client.post("/api-ap/save_player", json=payload)
-    # On attend un code 201 si l'API échappe correctement les entrées
-    # ou un 400 si elle les rejette
     assert resp.status_code in (201, 400)
+
+    # Table intacte
+    assert any(r["joueur_nom"] == "Initial" for r in mysql_conn_with_table._table_data)
 
 
 @pytest.mark.parametrize("malicious_id", [
     "1 OR 1=1",
-    "1; DROP TABLE joueurs;--",
-    "'; UPDATE joueurs SET elo=9999 WHERE 'a'='a"
+    "1; DROP TABLE Joueurs;--",
+    "'; UPDATE Joueurs SET elo=9999 WHERE 'a'='a"
 ])
-def test_sql_injection_get_player_info(monkeypatch, client, malicious_id):
+def test_sql_injection_get_player_info(monkeypatch, client, mysql_conn_with_table, malicious_id):
     """
-    Vérifie que l'API ne retourne pas toutes les données ou ne plante pas
+    Vérifie que l'API ne fuit pas de données et ne casse pas la table
     avec un ID malveillant.
     """
-    monkeypatch.setattr(api_ap, "get_connexion", lambda: FakeConnection(None))
+    monkeypatch.setattr(api_ap, "get_connexion", lambda: mysql_conn_with_table)
 
     resp = client.get(f"/api-ap/get_player_info?playerId={malicious_id}")
-    # On attend un 404 ou un 400, mais pas un dump massif de données
     assert resp.status_code in (400, 404)
+
+    # Table intacte
+    assert any(r["joueur_nom"] == "Initial" for r in mysql_conn_with_table._table_data)

@@ -112,12 +112,37 @@ def save_player():
         if 'playername' not in data:
             return jsonify({'error': 'Missing required fields'}), 400
 
-        # Validate and sanitize input
         try:
-            player_name = data['playername']
-        except NetworkError as e:
-            app.logger.error(f"Network error: {e}")
-            return jsonify({'error': str(e)}), 400
+            player_name = data.get('playername', None)
+        except Exception as e:
+            app.logger.error(f"Error reading request data: {e}")
+            return jsonify({'error': 'Invalid request format'}), 400
+
+        # Must be a string
+        if not isinstance(player_name, str):
+            return jsonify({'error': 'playername must be a string'}), 400
+
+        player_name = player_name.strip()
+
+        # Length check
+        if not (1 <= len(player_name) <= 50):
+            return jsonify({'error': 'playername length must be between 1 and 50 characters'}), 400
+
+        # Allowed characters only (letters, digits, space, hyphen, underscore)
+        allowed_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 _-"
+        for ch in player_name:
+            if ch not in allowed_chars:
+                return jsonify({'error': 'playername contains invalid characters'}), 400
+
+        # Detect obvious SQL injection patterns
+        suspect_substrings = [
+            "--", ";", "/*", "*/",
+            "DROP", "DELETE", "INSERT", "UPDATE",
+            " OR ", " AND "
+        ]
+        for sus in suspect_substrings:
+            if sus.lower() in player_name.lower():
+                return jsonify({'error': 'Suspicious input detected, SQL injection attempt detected'}), 400
 
         player_id = id
 
@@ -150,6 +175,24 @@ def save_player():
         app.logger.error(f"Unexpected error: {e}")
         return jsonify({'error': 'Internal server error'}), 500
 
+INT_MIN, INT_MAX = 1, 1000
+def _sanitize_id(raw_id):
+    """Valide et convertit un playerId en int, ou retourne None si invalide."""
+    if raw_id is None:
+        return None
+    # Supprimer les espaces autour
+    raw_id = raw_id.strip()
+    # Doit être uniquement composé de chiffres
+    if not raw_id.isdigit():
+        return None
+    # Longueur max 10 chiffres
+    if len(raw_id) > 10:
+        return None
+    # Conversion en entier et vérification de la plage
+    val = int(raw_id)
+    if not (INT_MIN <= val <= INT_MAX):
+        return None
+    return val
 
 @app.route('/api-ap/get_player_info')
 def get_player_info():
@@ -166,7 +209,10 @@ def get_player_info():
         response with an error message, along with a 404 status code.
     :rtype: Flask.Response
     """
-    player_id = request.args.get('playerId')  # Get the playerId parameter from the request
+    raw_id = request.args.get('playerId', type=str)
+    player_id = _sanitize_id(raw_id)
+    if player_id is None:
+        return jsonify({'error': 'Invalid playerId, SQL inject attempt'}), 400
     app.logger.info(f"Searching player : {player_id}")
 
     connection = None
