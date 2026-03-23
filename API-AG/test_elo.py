@@ -2,8 +2,6 @@ import random
 import math
 import statistics
 
-# --- Vos fonctions de calcul ELO et d'agrégation ---
-
 def calculate_elo(current_elo, opponent_elo, score_diff, result, k=1):
     """
     Calcule la variation d'Elo à partir des paramètres.
