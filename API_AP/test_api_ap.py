@@ -6,8 +6,6 @@ from API_AP.api_ap import app
 from API_AP import api_ap
 
 
-# --- FIXTURES ---
-
 @pytest.fixture
 def client():
     """Client de test Flask"""
@@ -33,16 +31,14 @@ class FakeMySQLConnection:
     def __init__(self, data=None):
         self._data = data
     def cursor(self, *args, **kwargs):
-        # On accepte dictionary=True, prepared=True, etc.
         return FakeMySQLCursor(self._data)
     def commit(self):
-        # Simule la validation d'une transaction
         pass
     def rollback(self):
-        # Simule l'annulation d'une transaction
         pass
     def close(self):
         pass
+
 @pytest.fixture
 def mysql_conn_with_table():
     """
@@ -50,11 +46,9 @@ def mysql_conn_with_table():
     """
     table = [{"joueur_id": 1, "joueur_nom": "Initial"}]
     conn = FakeMySQLConnection(table)
-    conn._table_data = table  # pour inspection dans les tests
+    conn._table_data = table
     return conn
 
-
-# --- TESTS FONCTIONNELS ---
 
 def test_save_player_success(monkeypatch, client, mysql_conn_with_table):
     monkeypatch.setattr(api_ap, "get_connexion", lambda: mysql_conn_with_table)
@@ -141,8 +135,6 @@ def test_ready_endpoint_success(monkeypatch, client):
     assert "ready" in resp.get_json()["message"].lower()
 
 
-# --- TESTS INJECTION SQL RENFORCÉS ---
-
 @pytest.mark.parametrize("payload", [
     {"playername": "Robert'); DROP TABLE Joueurs;--"},
     {"playername": "' OR '1'='1"},
@@ -161,7 +153,6 @@ def test_sql_injection_save_player(monkeypatch, client, mysql_conn_with_table, p
     resp = client.post("/api-ap/save_player", json=payload)
     assert resp.status_code in (201, 400)
 
-    # Table intacte
     assert any(r["joueur_nom"] == "Initial" for r in mysql_conn_with_table._table_data)
 
 
@@ -180,5 +171,4 @@ def test_sql_injection_get_player_info(monkeypatch, client, mysql_conn_with_tabl
     resp = client.get(f"/api-ap/get_player_info?playerId={malicious_id}")
     assert resp.status_code in (400, 404)
 
-    # Table intacte
     assert any(r["joueur_nom"] == "Initial" for r in mysql_conn_with_table._table_data)
