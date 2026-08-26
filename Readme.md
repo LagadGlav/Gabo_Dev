@@ -1,6 +1,6 @@
-# 🃏 Gabo_Dev – Microservices Card Game Platform
+#  Gabo_Dev – Microservices Card Game Platform
 
-## 🚀 Overview
+##  Overview
 **Gabo_Dev** is a distributed web application that manages and archives games of the card game *Gabo*.  
 The project demonstrates a **microservices architecture** built with **Python/Flask**, containerized with **Docker**, orchestrated via **Docker Compose**, and integrated with a **CI/CD pipeline (GitHub Actions)**.  
 
@@ -12,7 +12,7 @@ Main goals:
 
 ---
 
-## 🏗️ Architecture
+##  Architecture
 
 ### Global view
 ![Global architecture](docs/architecture.png)
@@ -26,7 +26,7 @@ Main goals:
 
 ---
 
-## 🔄 Sequence Diagrams
+##  Sequence Diagrams
 Each module is documented with a sequence diagram to illustrate its internal workflow.  
 
 ### Example: API-AG Startup
@@ -40,11 +40,11 @@ Steps:
 5. Queries the max game ID (`get_nb_game_in_db`).  
 6. Returns `200 OK` if ready.  
 
-👉 More documentation is available in the report including activity et sequence diagram. 
+--> More documentation is available in the report including activity et sequence diagram. 
 
 ---
 
-## ⚙️ Deployment
+##  Deployment
 
 ### Local (Docker Compose)
 """bash
